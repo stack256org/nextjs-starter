@@ -13,8 +13,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 The project architecture and usage guides live in the `docs/` folder so each
 topic has its own dedicated file:
 
-- [`docs/nextjs-agent-rules.md`](docs/nextjs-agent-rules.md) — The Next.js
-  agent rules (mirrors the block above)
 - [`docs/architecture.md`](docs/architecture.md) — Tech stack and project
   structure
 - [`docs/database.md`](docs/database.md) — Drizzle ORM, migrations, and
@@ -22,6 +20,7 @@ topic has its own dedicated file:
 - [`docs/worker.md`](docs/worker.md) — pgBoss job queue setup and usage
 - [`docs/themes.md`](docs/themes.md) — Light/dark mode with next-themes and
   DaisyUI, plus Phosphor icons
+- [`docs/rules.md`](docs/rules.md) — Engineering rules that must always be followed
 
 ## Quick Start
 
