@@ -10,6 +10,7 @@ type ButtonVariant =
   | "warning"
   | "error"
   | "ghost"
+  | "outline"
   | "dash"
   | "soft";
 

@@ -72,7 +72,7 @@ export default async function OrbitPage() {
         <div className="card-body">
           <h2 className="card-title">Admin Quick Actions</h2>
           <div className="card-actions">
-            <a href="/orbit/users" className="btn btn-primary">
+            <a href="/orbit/users" className="btn btn-outline">
               Manage Users
             </a>
           </div>

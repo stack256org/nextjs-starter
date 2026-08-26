@@ -31,7 +31,7 @@ export default function Home() {
                   <button className="btn btn-primary">Get Started</button>
                 </Link>
                 <Link href="/login" passHref>
-                  <button className="btn btn-primary">Sign In</button>
+                  <button className="btn btn-outline">Sign In</button>
                 </Link>
               </div>
             </div>
@@ -80,9 +80,9 @@ export default function Home() {
           </h2>
           <div className="flex flex-col gap-8 items-center">
             <div className="join">
-              <button className="btn join-item">Overview</button>
-              <button className="btn join-item">Profile</button>
-              <button className="btn join-item">Settings</button>
+              <button className="btn btn-outline join-item">Overview</button>
+              <button className="btn btn-outline join-item">Profile</button>
+              <button className="btn btn-outline join-item">Settings</button>
             </div>
 
             <div className="stats shadow">
