@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Next.js Starter",
   description:
     "A production-ready Next.js starter with TypeScript, App Router, Drizzle ORM + PostgreSQL, pgBoss, and DaisyUI.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

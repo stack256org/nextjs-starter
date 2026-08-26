@@ -33,8 +33,10 @@ export const auth = betterAuth({
   },
 
   // ── Plugins ─────────────────────────────────────────────────
+  // nextCookies() must be last — BetterAuth requires it to be
+  // the final plugin so it can forward all Set-Cookie headers
+  // to the Next.js response.
   plugins: [
-    nextCookies(),
     magicLink({
       sendMagicLink: async (data) => {
         await sendMagicLinkEmail(data.email, data.url);
@@ -42,6 +44,7 @@ export const auth = betterAuth({
     }),
     // Admin plugin: role management, user listing, impersonation
     admin(),
+    nextCookies(),
   ],
 
   // ── Social Providers (Google OAuth) ────────────────────────
