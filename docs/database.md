@@ -41,8 +41,17 @@ const user = await db.select().from(users).where(eq(users.email, "user@example.c
 
 // Insert
 await db.insert(users).values({
-  name: "Jane Doe",
   email: "jane@example.com",
-  passwordHash: "...",
+  name: "Jane Doe",
 });
 ```
+
+## Tables
+
+| Table | Purpose |
+|---|---|
+| `users` | Auth users (managed by BetterAuth) — includes `role`, `is_active`, `email_verified`, `image` |
+| `accounts` | OAuth account links (Google) |
+| `sessions` | User sessions (includes `impersonated_by`) |
+| `verifications` | Email verification / magic link tokens |
+| `posts` | Application data — `author_id` FK to `users.id` |

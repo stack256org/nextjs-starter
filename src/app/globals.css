@@ -14,7 +14,7 @@
  * (DaisyUI CSS variables) on the <html> element.
  * ------------------------------------------------------------------------- */
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark, cupcake, synthwave, valentines, emerald;
+  themes: light --default, dark --prefersdark, cupcake, synthwave, valentines, emerald, dim;
 }
 
 @theme inline {

@@ -13,7 +13,7 @@ import type { Job } from "pg-boss";
 
 /** Sends a welcome email to a newly registered user. */
 async function handleSendEmail(
-  job: Job<{ userId: number; subject: string; body: string }>,
+  job: Job<{ userId: string; subject: string; body: string }>,
 ) {
   const { userId, subject, body } = job.data;
 
@@ -31,7 +31,7 @@ async function handleSendEmail(
 }
 
 /** Recalculates a post's view count (example background processing). */
-async function handleProcessPost(job: Job<{ postId: number }>) {
+async function handleProcessPost(job: Job<{ postId: string }>) {
   const { postId } = job.data;
 
   const [post] = await db.select().from(posts).where(eq(posts.id, postId));

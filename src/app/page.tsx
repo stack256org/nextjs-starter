@@ -29,6 +29,9 @@ export default function Home() {
                 <Link href="/docs" passHref>
                   <button className="btn btn-primary">Get Started</button>
                 </Link>
+                <Link href="/login" passHref>
+                  <button className="btn btn-outline">Sign In</button>
+                </Link>
               </div>
             </div>
           </div>

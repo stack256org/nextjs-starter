@@ -14,19 +14,20 @@ The project architecture and usage guides live in the `docs/` folder so each
 topic has its own dedicated file:
 
 - [`docs/architecture.md`](docs/architecture.md) — Tech stack and project
-  structure
+  structure (includes auth, Orbit admin)
 - [`docs/database.md`](docs/database.md) — Drizzle ORM, migrations, and
   environment variables
 - [`docs/worker.md`](docs/worker.md) — pgBoss job queue setup and usage
 - [`docs/themes.md`](docs/themes.md) — Light/dark mode with next-themes and
   DaisyUI, plus Phosphor icons
+- [`docs/auth.md`](docs/auth.md) — BetterAuth setup, auth flow, admin guide
 - [`docs/rules.md`](docs/rules.md) — Engineering rules that must always be followed
 
 ## Quick Start
 
 ```bash
 npm install
-cp .env.example .env.local   # set your DATABASE_URL
+cp .env.example .env.local   # set DATABASE_URL, BETTER_AUTH_SECRET, ADMIN_EMAILS
 npm run db:migrate            # create database tables
 npm run dev -- --port 3003   # start the app
 npm run worker               # start the pgBoss worker (separate terminal)
