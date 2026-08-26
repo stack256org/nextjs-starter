@@ -130,7 +130,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleGoogle}
-              className="btn btn-outline w-full"
+              className="btn btn-primary w-full"
             >
               <GoogleLogo size={20} />
               Continue with Google
