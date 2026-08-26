@@ -8,58 +8,27 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Project Architecture
+# Project Documentation
 
-## Tech Stack
+The project architecture and usage guides live in the `docs/` folder so each
+topic has its own dedicated file:
 
-- **Next.js 16** — App Router with TypeScript
-- **Tailwind CSS v4** + **DaisyUI v5** — Design system with 6 themes (light, dark, cupcake, synthwave, valentines, emerald)
-- **Drizzle ORM** + **PostgreSQL** — Type-safe database with migrations
-- **pgBoss** — PostgreSQL-backed job queue for background processing
+- [`docs/nextjs-agent-rules.md`](docs/nextjs-agent-rules.md) — The Next.js
+  agent rules (mirrors the block above)
+- [`docs/architecture.md`](docs/architecture.md) — Tech stack and project
+  structure
+- [`docs/database.md`](docs/database.md) — Drizzle ORM, migrations, and
+  environment variables
+- [`docs/worker.md`](docs/worker.md) — pgBoss job queue setup and usage
+- [`docs/themes.md`](docs/themes.md) — Light/dark mode with next-themes and
+  DaisyUI, plus Phosphor icons
 
-## Project Structure
-
-```
-src/
-├── app/                      # Next.js App Router
-│   ├── layout.tsx            # Root layout with DaisyUI data-theme
-│   ├── page.tsx              # Home page showcasing DaisyUI components
-│   ├── globals.css           # Tailwind + DaisyUI styles
-│   └── favicon.ico
-├── lib/
-│   ├── db/
-│   │   ├── index.ts          # Drizzle ORM db instance (PostgreSQL pool)
-│   │   ├── schema.ts         # Database schema (users, posts tables)
-│   │   ├── migrate.ts        # runMigrations() function
-│   │   └── migrate.cli.ts    # CLI entry point for migrations
-│   └── queue/
-│       ├── index.ts          # pgBoss instance and init/close functions
-│       ├── jobs.ts           # Job types, sendJob(), registerWorker()
-│       ├── worker.ts         # Job handlers + startWorker()
-│       └── worker.cli.ts     # CLI entry point for the worker
-```
-
-## Database Scripts
+## Quick Start
 
 ```bash
-npm run db:generate     # Generate migration from schema changes
-npm run db:migrate      # Apply migrations (Drizzle Kit CLI)
-npm run db:migrate:run  # Apply migrations (programmatic, for Docker)
-npm run db:push         # Push schema changes without migrations
-npm run db:studio       # Open Drizzle Studio GUI
+npm install
+cp .env.example .env.local   # set your DATABASE_URL
+npm run db:migrate            # create database tables
+npm run dev -- --port 3003   # start the app
+npm run worker               # start the pgBoss worker (separate terminal)
 ```
-
-## Worker Script
-
-```bash
-npm run worker          # Start the pgBoss job worker
-```
-
-## Environment Variables
-
-| Variable            | Description          | Example                                         |
-|---------------------|----------------------|-------------------------------------------------|
-| `DATABASE_URL`      | PostgreSQL connection| `postgres://user:pass@host:5432/dbname`         |
-| `PGBOSS_DATABASE_URL` | pgBoss connection   | Same as DATABASE_URL (optional, falls back)     |
-
-Set these in `.env.local` (already created with example values).

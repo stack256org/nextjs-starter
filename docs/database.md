@@ -1,0 +1,48 @@
+# Database
+
+## Overview
+
+The project uses [Drizzle ORM](https://orm.drizzle.team/) with PostgreSQL
+(`pg`) for type-safe database access. Migrations are managed by
+[Drizzle Kit](https://orm.drizzle.team/kit/docs/overview).
+
+## Environment Variables
+
+| Variable | Description | Example |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection string (required) | `postgres://user:pass@host:5432/dbname` |
+| `PGBOSS_DATABASE_URL` | pgBoss queue connection (optional) | Same as `DATABASE_URL` if omitted |
+
+Copy `.env.example` to `.env.local` and fill in your values:
+
+```bash
+cp .env.example .env.local
+```
+
+## npm Scripts
+
+| Command | Description |
+|---|---|
+| `npm run db:generate` | Generate a new SQL migration from schema changes |
+| `npm run db:migrate` | Apply pending migrations (Drizzle Kit CLI) |
+| `npm run db:migrate:run` | Apply migrations programmatically (for Docker startup) |
+| `npm run db:push` | Push schema changes to the database without generating migration files (dev only) |
+| `npm run db:studio` | Open the Drizzle Studio web GUI |
+
+## Usage Example
+
+```ts
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+
+// Select
+const user = await db.select().from(users).where(eq(users.email, "user@example.com"));
+
+// Insert
+await db.insert(users).values({
+  name: "Jane Doe",
+  email: "jane@example.com",
+  passwordHash: "...",
+});
+```

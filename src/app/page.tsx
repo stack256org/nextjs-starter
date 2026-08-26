@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-base-100 flex flex-col items-center p-4">
-      <main className="w-full max-w-4xl mx-auto">
+      {/* Fixed theme toggle in the corner */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
+      <main className="w-full max-w-4xl mx-auto pt-12">
         {/* Hero Section */}
         <section className="hero min-h-screen py-20">
           <div className="hero-content flex-col lg:flex-row-reverse">
@@ -23,33 +29,6 @@ export default function Home() {
                 <Link href="/docs" passHref>
                   <button className="btn btn-primary">Get Started</button>
                 </Link>
-                <button
-                  className="btn btn-outline"
-                  onClick={() => {
-                    // Cycle through themes on click
-                    const themes = [
-                      "light",
-                      "dark",
-                      "cupcake",
-                      "synthwave",
-                      "valentines",
-                      "emerald",
-                    ];
-                    const current =
-                      document.documentElement.getAttribute("data-theme") ||
-                      "light";
-                    const next =
-                      themes[
-                        (themes.indexOf(current) + 1) % themes.length
-                      ];
-                    document.documentElement.setAttribute(
-                      "data-theme",
-                      next,
-                    );
-                  }}
-                >
-                  Cycle Theme
-                </button>
               </div>
             </div>
           </div>
