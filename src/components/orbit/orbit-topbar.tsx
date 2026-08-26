@@ -1,9 +1,11 @@
 "use client";
 
-import { SignOutButton } from "@/components/auth/sign-out-button";
+import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { authClient } from "@/lib/auth/client";
+import { Avatar } from "@/components/ui/avatar";
+import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
 import { StopImpersonatingButton } from "@/components/orbit/stop-impersonating-button";
-import { Avatar } from "@/components/avatar";
 
 interface OrbitTopbarProps {
   user: {
@@ -16,44 +18,48 @@ interface OrbitTopbarProps {
 }
 
 export function OrbitTopbar({ user, isImpersonating }: OrbitTopbarProps) {
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await authClient.signOut();
+    router.push("/login");
+  }
+
   return (
     <div className="navbar bg-base-100 shadow-sm border-b px-4 h-16">
+      {/* ── Left: brand ── */}
       <div className="flex-1">
         <span className="text-xl font-semibold text-primary">
           ⚡ Orbit Admin
         </span>
       </div>
 
+      {/* ── Center: impersonation indicator ── */}
       {isImpersonating && (
         <div className="badge badge-warning">
           Impersonating {user.name}
         </div>
       )}
 
+      {/* ── Right: actions ── */}
       <div className="flex items-center gap-2">
         {isImpersonating && <StopImpersonatingButton />}
         <ThemeToggle />
-        <div className="dropdown dropdown-end">
-          <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-            <Avatar src={user.image} name={user.name ?? user.email} />
-          </label>
-          <ul
-            tabIndex={0}
-            className="menu dropdown-content p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <span className="text-xs opacity-60">{user.email}</span>
-            </li>
-            <li>
-              <a href="/dashboard" className="text-sm">
-                User Dashboard
-              </a>
-            </li>
-            <li>
-              <SignOutButton />
-            </li>
-          </ul>
-        </div>
+
+        <Dropdown
+          placement="bottom-end"
+          trigger={
+            <Avatar src={user.image} name={user.name ?? user.email} size="md" />
+          }
+        >
+          <DropdownItem href="/orbit/settings">Settings</DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem href="/dashboard">
+            User Dashboard
+          </DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem onClick={handleSignOut}>Sign out</DropdownItem>
+        </Dropdown>
       </div>
     </div>
   );

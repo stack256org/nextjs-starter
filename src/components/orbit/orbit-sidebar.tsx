@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 
 interface OrbitSidebarProps {
   isImpersonating: boolean;
@@ -12,45 +13,42 @@ const navItems = [
   { label: "Users", href: "/orbit/users", icon: "👥" },
 ];
 
+/**
+ * Sidebar navigation for Orbit Admin.
+ *
+ * Uses DaisyUI `menu` component (vertical, responsive) for the nav list,
+ * and `alert` component for the impersonation warning.
+ *
+ * @see https://daisyui.com/components/menu/
+ * @see https://daisyui.com/components/alert/
+ */
 export function OrbitSidebar({ isImpersonating }: OrbitSidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside className="hidden md:block w-64 bg-base-200 border-r overflow-y-auto">
-      <nav className="p-4 space-y-1">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-              pathname === item.href
-                ? "bg-primary text-primary-content"
-                : "hover:bg-base-300"
-            }`}
-          >
-            <span className="text-lg">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
+      <nav className="p-4">
+        <ul className="menu menu-vertical gap-1">
+          {navItems.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 ${
+                  pathname === item.href ? "active" : ""
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </nav>
 
       {isImpersonating && (
         <div className="p-4 border-t border-base-300">
           <div className="alert alert-warning py-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.8 0a9 9 0 1112.72-6.01"
-              />
-            </svg>
+            <WarningIcon size={20} />
             <span className="text-xs">
               Impersonating a user
             </span>

@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth/server";
 import { headers } from "next/headers";
 import { ImpersonateButton } from "@/components/orbit/impersonate-button";
 import { SetRoleButton } from "@/components/orbit/set-role-button";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
 /**
  * Orbit admin — Users list page.
@@ -91,7 +91,7 @@ export default async function OrbitUsersPage() {
                 <tr key={uId}>
                   <td>
                     <div className="flex items-center gap-3">
-                      <Avatar src={u.image as string | null} name={uName || uEmail} className="h-8 w-8" />
+                      <Avatar src={u.image as string | null} name={uName || uEmail} size="sm" />
                       <div>
                         <div className="font-medium">
                           {uName || uEmail}

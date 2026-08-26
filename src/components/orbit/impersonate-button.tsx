@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
 
 interface ImpersonateButtonProps {
   userId: string;
@@ -30,11 +31,11 @@ export function ImpersonateButton({ userId, disabled }: ImpersonateButtonProps) 
   }
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={handleImpersonate}
       disabled={disabled}
-      className="btn btn-ghost btn-sm"
       title="Impersonate this user"
     >
       <svg
@@ -52,6 +53,6 @@ export function ImpersonateButton({ userId, disabled }: ImpersonateButtonProps) 
         />
       </svg>
       Impersonate
-    </button>
+    </Button>
   );
 }

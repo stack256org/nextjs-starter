@@ -2,9 +2,11 @@
 
 import { authClient } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 /**
  * A button that signs the user out and redirects to /login.
+ * Uses the common `Button` component with DaisyUI classes.
  */
 export function SignOutButton() {
   const router = useRouter();
@@ -15,12 +17,8 @@ export function SignOutButton() {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleSignOut}
-      className="btn btn-ghost btn-sm w-full justify-start"
-    >
+    <Button variant="ghost" size="sm" onClick={handleSignOut}>
       Sign out
-    </button>
+    </Button>
   );
 }

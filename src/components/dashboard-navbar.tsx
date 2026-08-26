@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SignOutButton } from "@/components/auth/sign-out-button";
-import { Avatar } from "@/components/avatar";
+import { authClient } from "@/lib/auth/client";
+import { Avatar } from "@/components/ui/avatar";
+import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
 import { isAdminEmail } from "@/lib/auth/config";
 
 interface DashboardNavbarProps {
@@ -23,7 +25,13 @@ const navItems = [
 
 export function DashboardNavbar({ user }: DashboardNavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isUserAdmin = isAdminEmail(user.email);
+
+  async function handleSignOut() {
+    await authClient.signOut();
+    router.push("/login");
+  }
 
   return (
     <div className="navbar bg-base-100 shadow-sm border-b px-4 h-16">
@@ -59,27 +67,18 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
       {/* ── Right: theme + user menu ── */}
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <div className="dropdown dropdown-end">
-          <label
-            tabIndex={0}
-            className="btn btn-ghost btn-circle avatar"
-          >
-            <Avatar src={user.image} name={user.name ?? user.email} />
-          </label>
-          <ul
-            tabIndex={0}
-            className="menu dropdown-content p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <span className="text-xs opacity-60">
-                {user.email}
-              </span>
-            </li>
-            <li>
-              <SignOutButton />
-            </li>
-          </ul>
-        </div>
+
+        <Dropdown
+          placement="bottom-end"
+          trigger={
+            <Avatar src={user.image} name={user.name ?? user.email} size="md" />
+          }
+        >
+          <DropdownItem href="/dashboard/profile">Profile</DropdownItem>
+          <DropdownItem href="/dashboard/settings">Settings</DropdownItem>
+          <DropdownSeparator />
+          <DropdownItem onClick={handleSignOut}>Sign out</DropdownItem>
+        </Dropdown>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
 
 /**
  * Ends the current impersonation session and returns the admin
@@ -17,12 +18,8 @@ export function StopImpersonatingButton() {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleStop}
-      className="btn btn-warning btn-sm"
-    >
+    <Button variant="warning" size="sm" onClick={handleStop}>
       Stop impersonating
-    </button>
+    </Button>
   );
 }

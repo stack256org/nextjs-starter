@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface SetRoleButtonProps {
   userId: string;
@@ -41,29 +42,23 @@ export function SetRoleButton({
     setIsLoading(false);
   }
 
+  const isAdmin = currentRole === "admin";
+
   return (
-    <button
-      type="button"
+    <Button
+      variant={isAdmin ? "primary" : "ghost"}
+      size="sm"
       onClick={handleToggle}
       disabled={disabled || isLoading}
-      className={`btn ${
-        currentRole === "admin"
-          ? "btn-primary btn-sm"
-          : "btn-ghost btn-sm"
-      }`}
-      title={
-        currentRole === "admin"
-          ? "Demote to user"
-          : "Promote to admin"
-      }
+      title={isAdmin ? "Demote to user" : "Promote to admin"}
     >
       {isLoading ? (
-        <span className="loading-spinner loading-xs"></span>
-      ) : currentRole === "admin" ? (
+        <span className="loading loading-spinner loading-xs"></span>
+      ) : isAdmin ? (
         "👑 Admin"
       ) : (
         "Make Admin"
       )}
-    </button>
+    </Button>
   );
 }
