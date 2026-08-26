@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/helpers";
 import { db } from "@/lib/db";
 import { users, posts } from "@/lib/db/schema";
 import { count } from "drizzle-orm";
+import { Users, FileText, Shield } from "@phosphor-icons/react/dist/ssr";
 
 /**
  * Orbit admin dashboard — key metrics at a glance.
@@ -37,20 +38,7 @@ export default async function OrbitPage() {
       <div className="stats stats-vertical lg:stats-horizontal shadow w-full gap-4">
         <div className="stat bg-base-200 rounded-box shadow">
           <div className="stat-figure text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 11-4 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
+            <Users size={32} />
           </div>
           <div className="stat-title">Total Users</div>
           <div className="stat-value text-primary">{totalUsers}</div>
@@ -59,26 +47,7 @@ export default async function OrbitPage() {
 
         <div className="stat bg-base-200 rounded-box shadow">
           <div className="stat-figure text-secondary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19.235 13.75A9 9 0 1110.25 5a9 9 0 019 8.75z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12h1m1 0l-3-3m3 3l-3 3"
-              />
-            </svg>
+            <FileText size={32} />
           </div>
           <div className="stat-title">Total Posts</div>
           <div className="stat-value text-secondary">{totalPosts}</div>
@@ -87,20 +56,7 @@ export default async function OrbitPage() {
 
         <div className="stat bg-base-200 rounded-box shadow">
           <div className="stat-figure text-accent">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2l4 -4m5.6 -4.4v10.801m-10.2 0.2"
-              />
-            </svg>
+            <Shield size={32} />
           </div>
           <div className="stat-title">Admin Emails</div>
           <div className="stat-value break-all text-xs">

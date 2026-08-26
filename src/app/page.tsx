@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Star, Users } from "@phosphor-icons/react/dist/ssr";
 
 export default function Home() {
   return (
@@ -87,14 +88,7 @@ export default function Home() {
             <div className="stats shadow">
               <div className="stat">
                 <div className="stat-figure text-primary">
-                  <svg
-                    className="w-8 h-8 fill-current"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M12 0l3.09 9h9.91l-7 5.26 2.57 9.74L12 17.77l-7.57 5.23 2.57-9.74z" />
-                  </svg>
+                  <Star size={32} />
                 </div>
                 <div className="stat-title">Project Rating</div>
                 <div className="stat-value text-primary">4.8</div>
@@ -102,20 +96,7 @@ export default function Home() {
               </div>
               <div className="stat">
                 <div className="stat-figure text-secondary">
-                  <svg
-                    className="w-8 h-8 fill-current"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a4 4 0 00-3-3.87M9 20h6v-2a4 4 0 01-3-3.87M9 12h.01M15 12h.01M3 12l2-2v4l2 2M1 14l2-2m0 0V8a4 4 0 014-4h6a4 4 0 014 4v6"
-                    />
-                  </svg>
+                  <Users size={32} />
                 </div>
                 <div className="stat-title">Projects</div>
                 <div className="stat-value text-secondary">12</div>

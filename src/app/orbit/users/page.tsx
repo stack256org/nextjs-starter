@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { ImpersonateButton } from "@/components/orbit/impersonate-button";
 import { SetRoleButton } from "@/components/orbit/set-role-button";
 import { Avatar } from "@/components/ui/avatar";
+import { Warning } from "@phosphor-icons/react/dist/ssr";
 
 /**
  * Orbit admin — Users list page.
@@ -43,20 +44,7 @@ export default async function OrbitUsersPage() {
 
       {isImpersonating && (
         <div className="alert alert-warning">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1v-4h2v4h1v4zM12 11V7a5 5 0 00-5 5h10a5 5 0 00-5-5z"
-            />
-          </svg>
+          <Warning size={20} />
           <span>
             You are currently impersonating a user. Actions performed are
             on behalf of that user.

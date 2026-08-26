@@ -7,6 +7,7 @@ import {
   ListboxOptions,
 } from "@headlessui/react";
 import { type ReactNode } from "react";
+import { CaretDown, Check } from "@phosphor-icons/react/dist/ssr";
 
 export { Listbox };
 
@@ -72,21 +73,7 @@ export function Select({
             <span className={`truncate ${!selectedOption ? "opacity-50" : ""}`}>
               {selectedOption ? selectedOption.label : placeholder}
             </span>
-            {/* Chevron down icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 opacity-50 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            <CaretDown size={16} className="opacity-50 shrink-0" />
           </ListboxButton>
 
           <ListboxOptions
@@ -104,20 +91,7 @@ export function Select({
                 {({ selected }) => (
                   <>
                     {selected && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-3 w-3 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <Check size={12} className="mr-1" />
                     )}
                     <span className="truncate">{option.label}</span>
                   </>

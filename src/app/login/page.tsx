@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
-import { GoogleLogo } from "@/components/google-logo";
-import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
+import { EnvelopeSimple, GoogleLogo, SpinnerGap } from "@phosphor-icons/react/dist/ssr";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -91,7 +90,7 @@ export default function LoginPage() {
                   <div className="relative">
                     <EnvelopeSimple
                       size={20}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60 z-10"
                     />
                     <input
                       type="email"
@@ -113,7 +112,10 @@ export default function LoginPage() {
                 >
                   {isSending ? (
                     <>
-                      <span className="loading-spinner loading-sm"></span>
+                      <SpinnerGap
+                        size={16}
+                        className="animate-spin"
+                      />
                       Sending…
                     </>
                   ) : (
@@ -130,7 +132,7 @@ export default function LoginPage() {
               onClick={handleGoogle}
               className="btn btn-outline w-full"
             >
-              <GoogleLogo className="h-5 w-5" />
+              <GoogleLogo size={20} />
               Continue with Google
             </button>
           </div>
