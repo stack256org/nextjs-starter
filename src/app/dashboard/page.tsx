@@ -49,13 +49,6 @@ export default async function DashboardPage() {
             </Badge>
           </>
         }
-        actions={
-          isAdmin ? (
-            <ButtonLink href="/orbit" size="sm">
-              Open Orbit Admin
-            </ButtonLink>
-          ) : undefined
-        }
       />
 
       <DetailList

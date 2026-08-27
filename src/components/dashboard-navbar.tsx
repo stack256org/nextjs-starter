@@ -5,7 +5,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth/client";
 import { AFTER_SIGN_OUT_URL } from "@/lib/auth/config";
-import { Avatar, Container } from "@/components/ui";
+import { Avatar, ButtonLink, Container } from "@/components/ui";
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr";
 import {
   Dropdown,
   DropdownItem,
@@ -63,10 +64,17 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
       </div>
 
       <div className="flex items-center gap-1">
+        {/* Admins only. Kept beside the theme toggle rather than in the
+            account menu: it is a destination, not an account action. */}
+        {isUserAdmin && (
+          <ButtonLink href="/orbit" variant="ghost" size="sm">
+            <ShieldCheckIcon size={17} aria-hidden="true" />
+            Orbit
+          </ButtonLink>
+        )}
+
         <ThemeToggle />
 
-        {/* Orbit Admin is reachable only from this menu — it is not a primary
-            destination and does not belong in the main nav. */}
         <Dropdown
           label="Account menu"
           trigger={
@@ -76,12 +84,6 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
           <DropdownHeader>{user.email}</DropdownHeader>
           <DropdownItem href="/dashboard/profile">Profile</DropdownItem>
           <DropdownItem href="/dashboard/settings">Settings</DropdownItem>
-          {isUserAdmin && (
-            <>
-              <DropdownSeparator />
-              <DropdownItem href="/orbit">Orbit Admin</DropdownItem>
-            </>
-          )}
           <DropdownSeparator />
           <DropdownItem onClick={handleSignOut} destructive>
             Sign out
