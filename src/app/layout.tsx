@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/lib/theme/provider";
+import { getThemePreference } from "@/lib/theme/server";
+import { themeAttribute } from "@/lib/theme/config";
 import { APP_URL } from "@/lib/auth/config";
 
 const geistSans = Geist({
@@ -51,23 +53,27 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Read on the server so `data-theme` is in the first byte of HTML — no
+  // flash of the wrong theme, and no inline script to produce one.
+  const theme = await getThemePreference();
+
   return (
     <html
       lang="en"
+      // Absent for "system", which lets the prefers-color-scheme rules in
+      // globals.css resolve the theme with no JavaScript at all.
+      data-theme={themeAttribute(theme)}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       // globals.css sets `scroll-behavior: smooth`; this tells Next to opt
       // route transitions out of it so navigation doesn't animate the scroll.
       data-scroll-behavior="smooth"
-      // next-themes writes `class` and `data-theme` here before React
-      // hydrates, so the server markup will not match — on purpose.
-      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
         <a href="#main" className="skip-link btn btn-primary btn-sm">
           Skip to content
         </a>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
       </body>
     </html>
   );

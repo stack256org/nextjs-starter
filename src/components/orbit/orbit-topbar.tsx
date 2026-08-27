@@ -32,7 +32,10 @@ export function OrbitTopbar({ user }: OrbitTopbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-base-300 bg-base-100/95 px-4 backdrop-blur">
+    // Orbit is an admin console: full-bleed on purpose, so wide tables and the
+    // job browser get the whole viewport. The container used on the public and
+    // dashboard pages deliberately does not apply here.
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-base-300 bg-base-100/95 px-4 backdrop-blur sm:px-6">
       <div className="flex flex-1 items-center gap-2.5">
         <Link href="/orbit" className="font-semibold">
           Orbit

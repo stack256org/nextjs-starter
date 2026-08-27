@@ -21,19 +21,35 @@ topic has its own dedicated file:
 - [`docs/themes.md`](docs/themes.md) — Light/dark mode with next-themes and
   DaisyUI, plus Phosphor icons
 - [`docs/auth.md`](docs/auth.md) — BetterAuth setup, auth flow, admin guide, SMTP
+- [`docs/security.md`](docs/security.md) — Sessions, cookies, CSRF, and how
+  Server Actions are authorised
 - [`docs/rules.md`](docs/rules.md) — Engineering rules that must always be followed
 
 ## Quick Start
 
 ```bash
 pnpm install
-cp .env.example .env.local   # set DATABASE_URL, BETTER_AUTH_SECRET, SMTP_*
+cp .env.example .env.local   # set BETTER_AUTH_SECRET at minimum
 pnpm db:migrate              # create database tables
-pnpm dev --port 3003          # start the app
-pnpm worker                   # start the pgBoss worker (separate terminal)
+pnpm dev                     # web server AND pgBoss worker, on port 3003
 ```
 
-**Admin promotion:**
+`pnpm dev` runs both processes under `concurrently`. Do not pass `--port` — the
+port is set inside the script, and the extra flag is forwarded to
+`concurrently`, which rejects it.
+
+**Admin promotion** — the first admin must come from the CLI, because the UI
+that grants the role is itself admin-only:
 ```bash
 pnpm make:admin user@example.com
 ```
+
+## Conventions
+
+- **Components:** every control is a Headless UI primitive styled with DaisyUI
+  tokens. There are no native `<select>`, bare `<input>` or bare `<button>`
+  elements in the app. Import from `@/components/ui`; the full set is demoed at
+  `/ui` (unlinked and noindex).
+- **Page layout:** compose `Page` → `PageHeader` → `Section` from
+  `@/components/ui` rather than hand-rolling headings and spacing.
+- **Verify before claiming:** `pnpm check` runs typecheck and lint together.

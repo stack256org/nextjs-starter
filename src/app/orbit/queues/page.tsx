@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/helpers";
 import { listQueues, QueueUnavailableError } from "@/lib/queue/admin";
-import { Alert, Badge, ButtonLink, EmptyState } from "@/components/ui";
+import {
+  Alert,
+  Badge,
+  ButtonLink,
+  EmptyState,
+  Page,
+  PageHeader,
+} from "@/components/ui";
 import { StackIcon, WarningIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: "Queues · Orbit Admin" };
@@ -19,13 +26,13 @@ export default async function QueuesPage() {
     if (!(err instanceof QueueUnavailableError)) throw err;
 
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeading />
+      <Page>
+        <Heading />
         <Alert tone="error" title="Can't reach the job queue" assertive>
           pgBoss could not be contacted. Check that PostgreSQL is running and
           that DATABASE_URL is correct.
         </Alert>
-      </div>
+      </Page>
     );
   }
 
@@ -34,8 +41,8 @@ export default async function QueuesPage() {
   const unhandled = queues.filter((q) => !q.hasHandler && q.ready > 0);
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeading />
+    <Page>
+      <Heading />
 
       {totalFailed > 0 && (
         <Alert tone="warning" title={`${totalFailed} failed job${totalFailed === 1 ? "" : "s"}`}>
@@ -129,17 +136,15 @@ export default async function QueuesPage() {
           : `${totalReady} job${totalReady === 1 ? "" : "s"} waiting across all queues.`}{" "}
         Counts are read live from pgBoss on each request.
       </p>
-    </div>
+    </Page>
   );
 }
 
-function PageHeading() {
+function Heading() {
   return (
-    <header>
-      <h1 className="text-2xl font-semibold">Queues</h1>
-      <p className="mt-1 text-sm text-base-content/70">
-        Background jobs processed by the pgBoss worker.
-      </p>
-    </header>
+    <PageHeader
+      title="Queues"
+      description="Background jobs processed by the pgBoss worker."
+    />
   );
 }

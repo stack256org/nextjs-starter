@@ -40,8 +40,11 @@ const selectSizeClasses: Record<NonNullable<SelectProps["size"]>, string> = {
 };
 
 /**
- * A DaisyUI-styled `Listbox` — use it when options need richer content than a
- * native `<option>` allows. For plain text options prefer `NativeSelect`.
+ * A DaisyUI-styled `Listbox` — the app's only select control.
+ *
+ * There is deliberately no native `<select>` wrapper: a native control cannot
+ * render rich options, cannot be styled consistently across browsers, and
+ * would be the one component in the set not built on Headless UI.
  *
  * Two DaisyUI details this works around:
  *  - `.select` already draws its own chevron with a background gradient, so

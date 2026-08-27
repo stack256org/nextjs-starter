@@ -1,163 +1,157 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { headers } from "next/headers";
 import { getViewer } from "@/lib/auth/helpers";
 import { auth } from "@/lib/auth/server";
+import { describeUserAgent, formatDate, formatDateTime } from "@/lib/format/session";
 import {
-  UserCircleIcon,
-  GearSixIcon,
-  ShieldCheckIcon,
-  SquaresFourIcon,
-  ArrowRightIcon,
-} from "@phosphor-icons/react/dist/ssr";
+  Badge,
+  ButtonLink,
+  DetailList,
+  Page,
+  PageHeader,
+  Section,
+} from "@/components/ui";
 
 export const metadata: Metadata = { title: "Dashboard · Next.js Starter" };
 
+export const dynamic = "force-dynamic";
+
+/**
+ * The signed-in home screen.
+ *
+ * A dashboard should show state, not navigation — account links live in the
+ * avatar menu, not as tiles here. With no product data in a starter, the
+ * honest thing to show is the account's own state: who you are, where you're
+ * signed in, and what to build next.
+ *
+ * Replace the "Start here" section with your product's real content; the
+ * account summary above it is worth keeping.
+ */
 export default async function DashboardPage() {
-  const { user, isAdmin } = await getViewer();
+  const { session, user, isAdmin } = await getViewer();
 
-  const sessionCount = await auth.api
+  const sessions = await auth.api
     .listSessions({ headers: await headers() })
-    .then((s) => s.length)
-    .catch(() => null);
+    .catch(() => []);
 
-  const shortcuts = [
-    {
-      href: "/dashboard/profile",
-      title: "Profile",
-      description: "Your display name and avatar.",
-      icon: UserCircleIcon,
-    },
-    {
-      href: "/dashboard/settings",
-      title: "Settings",
-      description:
-        sessionCount === null
-          ? "Theme and account security."
-          : `Theme, plus ${sessionCount} active session${sessionCount === 1 ? "" : "s"}.`,
-      icon: GearSixIcon,
-    },
-    {
-      href: "/ui",
-      title: "Components",
-      description: "Every shared component, documented.",
-      icon: SquaresFourIcon,
-    },
-    ...(isAdmin
-      ? [
-          {
-            href: "/orbit",
-            title: "Orbit Admin",
-            description: "Users, roles and the job queues.",
-            icon: ShieldCheckIcon,
-          },
-        ]
-      : []),
-  ];
+  const otherDevices = sessions.filter((s) => s.token !== session.session.token);
 
   return (
-    <div className="flex flex-col gap-10">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome back, {user.name.split(" ")[0]}
-        </h1>
-        <p className="mt-1.5 text-sm text-base-content/70">
-          Signed in as {user.email}.
-        </p>
-      </header>
+    <Page>
+      <PageHeader
+        title={`Welcome back, ${user.name.split(" ")[0]}`}
+        description="Your account at a glance."
+        meta={
+          <>
+            <Badge tone={isAdmin ? "primary" : "ghost"}>{user.role}</Badge>
+            <Badge tone={session.user.emailVerified ? "success" : "warning"}>
+              {session.user.emailVerified ? "Email verified" : "Email unverified"}
+            </Badge>
+          </>
+        }
+        actions={
+          isAdmin ? (
+            <ButtonLink href="/orbit" size="sm">
+              Open Orbit Admin
+            </ButtonLink>
+          ) : undefined
+        }
+      />
 
-      {/* Rules rather than cards — nothing here needs elevation. */}
-      <section>
-        <h2 className="mb-1 text-sm tracking-wide text-base-content/50 uppercase">
-          Your account
-        </h2>
+      <DetailList
+        items={[
+          { label: "Signed in as", value: user.email },
+          { label: "Member since", value: formatDate(session.user.createdAt) },
+          {
+            label: "Active sessions",
+            value: `${sessions.length} device${sessions.length === 1 ? "" : "s"}`,
+          },
+          {
+            label: "This session expires",
+            value: formatDate(session.session.expiresAt),
+          },
+        ]}
+      />
+
+      <Section
+        title="Where you're signed in"
+        description="Sessions are stored in the database and checked on every request, so signing one out takes effect immediately."
+        actions={
+          <ButtonLink href="/dashboard/settings" size="sm">
+            Manage sessions
+          </ButtonLink>
+        }
+      >
         <ul className="divide-y divide-base-300 border-y border-base-300">
-          {shortcuts.map(({ href, title, description, icon: CardIcon }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className="group flex items-center gap-4 py-4 transition-colors hover:bg-base-200/60"
-              >
-                <CardIcon
-                  size={20}
-                  className="shrink-0 text-primary"
-                  aria-hidden="true"
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block font-medium">{title}</span>
-                  <span className="block text-sm text-base-content/70">
-                    {description}
-                  </span>
-                </span>
-                <ArrowRightIcon
-                  size={16}
-                  className="shrink-0 text-base-content/30 transition-transform group-hover:translate-x-0.5 group-hover:text-base-content/60"
-                  aria-hidden="true"
-                />
-              </Link>
+          <li className="flex flex-wrap items-center justify-between gap-3 py-3.5">
+            <span className="flex items-center gap-2 text-sm">
+              <span className="font-medium">
+                {describeUserAgent(session.session.userAgent)}
+              </span>
+              <Badge tone="primary">This device</Badge>
+            </span>
+            <span className="text-xs text-base-content/60">
+              Since {formatDateTime(session.session.createdAt)}
+            </span>
+          </li>
+          {otherDevices.slice(0, 3).map((s) => (
+            <li
+              key={s.id}
+              className="flex flex-wrap items-center justify-between gap-3 py-3.5"
+            >
+              <span className="text-sm font-medium">
+                {describeUserAgent(s.userAgent)}
+              </span>
+              <span className="text-xs text-base-content/60">
+                Since {formatDateTime(s.createdAt)}
+              </span>
             </li>
           ))}
         </ul>
-      </section>
+        {otherDevices.length > 3 && (
+          <p className="text-xs text-base-content/60">
+            and {otherDevices.length - 3} more.
+          </p>
+        )}
+      </Section>
 
-      <section className="max-w-[68ch]">
-        <h2 className="mb-1 text-sm tracking-wide text-base-content/50 uppercase">
-          Build from here
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-base-content/70">
-          This starter ships auth, a database layer, a job queue and a themed
-          component set — but no product. Replace this page with whatever
-          you&apos;re building.
-        </p>
-        <dl className="mt-5 flex flex-col gap-4 text-sm">
+      <Section
+        divided
+        title="Start here"
+        description="This starter ships the plumbing and no product. Delete this section and build in its place."
+      >
+        <dl className="grid gap-6 sm:grid-cols-3">
           <div>
-            <dt className="font-medium">Add a table</dt>
-            <dd className="mt-0.5 text-base-content/70">
-              Edit{" "}
-              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
-                src/lib/db/schema.ts
-              </code>
-              , then run{" "}
-              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
-                pnpm db:generate
-              </code>{" "}
-              and{" "}
-              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
-                pnpm db:migrate
-              </code>
-              .
+            <dt className="text-sm font-medium">Add a table</dt>
+            <dd className="mt-1 text-sm leading-relaxed text-base-content/70">
+              Edit <Code>src/lib/db/schema.ts</Code>, then run{" "}
+              <Code>pnpm db:generate</Code> and <Code>pnpm db:migrate</Code>.
             </dd>
           </div>
           <div>
-            <dt className="font-medium">Add a background job</dt>
-            <dd className="mt-0.5 text-base-content/70">
-              Name it in{" "}
-              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
-                src/lib/queue/jobs.ts
-              </code>{" "}
-              and handle it in{" "}
-              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
-                worker.ts
-              </code>
-              .
+            <dt className="text-sm font-medium">Add a background job</dt>
+            <dd className="mt-1 text-sm leading-relaxed text-base-content/70">
+              Name it in <Code>src/lib/queue/jobs.ts</Code> and handle it in{" "}
+              <Code>worker.ts</Code>. Watch it run in Orbit.
             </dd>
           </div>
           <div>
-            <dt className="font-medium">Build a screen</dt>
-            <dd className="mt-0.5 text-base-content/70">
-              Import from{" "}
-              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
-                @/components/ui
-              </code>{" "}
-              — see the{" "}
-              <Link href="/ui" className="link">
-                component reference
-              </Link>
-              .
+            <dt className="text-sm font-medium">Build a screen</dt>
+            <dd className="mt-1 text-sm leading-relaxed text-base-content/70">
+              Compose <Code>Page</Code>, <Code>PageHeader</Code> and{" "}
+              <Code>Section</Code> from <Code>@/components/ui</Code>.
             </dd>
           </div>
         </dl>
-      </section>
-    </div>
+      </Section>
+    </Page>
+  );
+}
+
+function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+      {children}
+    </code>
   );
 }

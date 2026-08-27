@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ButtonLink } from "@/components/ui";
+import { ButtonLink, Container } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Page not found · Next.js Starter",
@@ -15,7 +14,8 @@ export const metadata: Metadata = {
  */
 export default function NotFound() {
   return (
-    <main className="flex min-h-[100dvh] flex-col items-center justify-center gap-6 bg-base-100 px-4 text-center">
+    <main className="flex min-h-[100dvh] items-center justify-center bg-base-100">
+      <Container size="prose" className="flex flex-col items-center gap-6 text-center">
       <p className="font-mono text-sm tracking-widest text-base-content/50 uppercase">
         404
       </p>
@@ -34,13 +34,7 @@ export default function NotFound() {
         </ButtonLink>
         <ButtonLink href="/dashboard">Go to dashboard</ButtonLink>
       </div>
-      <p className="text-sm text-base-content/50">
-        Looking for the component reference?{" "}
-        <Link href="/ui" className="link">
-          Browse the components
-        </Link>
-        .
-      </p>
+      </Container>
     </main>
   );
 }

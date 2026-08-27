@@ -16,6 +16,7 @@ The plumbing is set up and verified end to end, so you can start on features.
 | Job queue | pgBoss (PostgreSQL-backed background jobs) |
 | Auth | BetterAuth (magic link, optional Google OAuth, roles, impersonation) |
 | Email | Nodemailer + SMTP (Mailpit for local dev) |
+| Theming | DaisyUI tokens + local provider |
 | Lint | Oxlint |
 | Package manager | pnpm |
 
@@ -177,8 +178,9 @@ DaisyUI themes are registered in `src/app/globals.css`:
 `valentine` · `emerald` · `dim`
 
 Users pick one at `/dashboard/settings`; the navbar toggle flips light/dark.
-To add a theme, add its name to the `@plugin "daisyui"` block **and** to
-`THEME_OPTIONS` in `src/app/dashboard/settings/theme-picker.tsx`.
+Theming lives in `src/lib/theme/` — there is no `next-themes` dependency.
+To add a theme, register it in `globals.css` **and** add it to `THEMES` in
+`src/lib/theme/config.ts`. See [`docs/themes.md`](docs/themes.md).
 
 Don't hard-code `data-theme` on a wrapper element — DaisyUI resolves theme
 variables from the nearest ancestor that has it, so doing so silently disables

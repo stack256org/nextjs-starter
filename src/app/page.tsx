@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSession } from "@/lib/auth/helpers";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ButtonLink } from "@/components/ui";
+import { ButtonLink, Container } from "@/components/ui";
 import {
   DatabaseIcon,
   StackIcon,
@@ -48,12 +48,10 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-base-100">
-      <header className="flex h-16 items-center gap-4 px-4 sm:px-6">
+      <header className="border-b border-base-300/60">
+        <Container className="flex h-16 items-center gap-4">
         <span className="flex-1 font-semibold">Next.js Starter</span>
         <nav aria-label="Main" className="flex items-center gap-1">
-          <Link href="/ui" className="btn btn-ghost btn-sm">
-            Components
-          </Link>
           <ThemeToggle />
           <ButtonLink
             href={session ? "/dashboard" : "/login"}
@@ -63,9 +61,10 @@ export default async function Home() {
             {session ? "Dashboard" : "Sign in"}
           </ButtonLink>
         </nav>
+        </Container>
       </header>
 
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6">
+      <Container as="main" id="main" className="flex-1">
         {/* Left-aligned, asymmetric hero — not a centred column. */}
         <section className="grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
           <div className="max-w-[22ch]">
@@ -89,7 +88,6 @@ export default async function Home() {
                 {session ? "Open the dashboard" : "Get started"}
                 <ArrowRightIcon size={16} aria-hidden="true" />
               </ButtonLink>
-              <ButtonLink href="/ui">Browse the components</ButtonLink>
             </div>
           </div>
         </section>
@@ -117,20 +115,17 @@ export default async function Home() {
             ))}
           </div>
         </section>
-      </main>
+      </Container>
 
-      <footer className="border-t border-base-300 px-4 py-8 sm:px-6">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-sm text-base-content/60">
+      <footer className="border-t border-base-300">
+        <Container className="flex flex-wrap items-center justify-between gap-4 py-8 text-sm text-base-content/60">
           <span>MIT licensed. Use it for anything.</span>
           <nav aria-label="Footer" className="flex gap-5">
-            <Link href="/ui" className="link link-hover">
-              Components
-            </Link>
             <Link href="/login" className="link link-hover">
               Sign in
             </Link>
           </nav>
-        </div>
+        </Container>
       </footer>
     </div>
   );

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth/client";
 import { AFTER_SIGN_OUT_URL } from "@/lib/auth/config";
-import { Avatar } from "@/components/ui";
+import { Avatar, Container } from "@/components/ui";
 import {
   Dropdown,
   DropdownItem,
@@ -37,7 +37,10 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-base-300 bg-base-100/95 px-4 backdrop-blur sm:px-6">
+    // Full-bleed chrome, container-aligned contents — so the brand lines up
+    // with the page heading underneath it.
+    <header className="sticky top-0 z-30 border-b border-base-300 bg-base-100/95 backdrop-blur">
+      <Container className="flex h-16 items-center gap-4">
       <div className="flex flex-1 items-center gap-6">
         <Link href="/dashboard" className="font-semibold">
           Next.js Starter
@@ -85,6 +88,7 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
           </DropdownItem>
         </Dropdown>
       </div>
+      </Container>
     </header>
   );
 }

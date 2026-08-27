@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Button as HuiButton,
   Menu,
   MenuButton,
   MenuItem,
@@ -121,9 +122,9 @@ export function DropdownItem({
           {children}
         </Link>
       ) : (
-        <button type="button" onClick={onClick} className={`text-left ${tone}`}>
+        <HuiButton onClick={onClick} className={`w-full text-left ${tone}`}>
           {children}
-        </button>
+        </HuiButton>
       )}
     </MenuItem>
   );

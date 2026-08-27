@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth/helpers";
 import { isGoogleEnabled } from "@/lib/auth/server";
 import { AFTER_SIGN_IN_URL } from "@/lib/auth/config";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Container } from "@/components/ui";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -20,18 +21,17 @@ export default async function LoginPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-base-100">
-      <header className="flex h-16 items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex-1 font-semibold">
-          Next.js Starter
-        </Link>
-        <ThemeToggle />
+      <header className="border-b border-base-300/60">
+        <Container className="flex h-16 items-center gap-4">
+          <Link href="/" className="flex-1 font-semibold">
+            Next.js Starter
+          </Link>
+          <ThemeToggle />
+        </Container>
       </header>
 
-      <main
-        id="main"
-        className="flex flex-1 items-center justify-center px-4 pb-24"
-      >
-        <div className="w-full max-w-sm">
+      <main id="main" className="flex flex-1 items-center justify-center pb-24">
+        <Container size="form">
           <div className="mb-7">
             <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
             <p className="mt-1.5 text-sm text-base-content/70">
@@ -48,7 +48,7 @@ export default async function LoginPage() {
               Back to home
             </Link>
           </p>
-        </div>
+        </Container>
       </main>
     </div>
   );

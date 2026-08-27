@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth/helpers";
 import { auth } from "@/lib/auth/server";
 import { displayName } from "@/lib/auth/config";
 import { formatDate } from "@/lib/format/session";
-import { Avatar, Badge, EmptyState } from "@/components/ui";
+import { Avatar, Badge, EmptyState, Page, PageHeader } from "@/components/ui";
 import { UsersIcon, CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: "Users · Orbit Admin" };
@@ -42,15 +42,11 @@ export default async function OrbitUsersPage() {
   const adminCount = userList.filter((u) => u.role === "admin").length;
 
   return (
-    <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Users</h1>
-        <p className="mt-1 text-sm text-base-content/70">
-          {userList.length} account{userList.length === 1 ? "" : "s"},{" "}
-          {adminCount} with admin access. Select anyone to manage their role,
-          sessions and access.
-        </p>
-      </header>
+    <Page>
+      <PageHeader
+        title="Users"
+        description={`${userList.length} account${userList.length === 1 ? "" : "s"}, ${adminCount} with admin access. Select anyone to manage their role, sessions and access.`}
+      />
 
       {userList.length === 0 ? (
         <EmptyState
@@ -125,6 +121,6 @@ export default async function OrbitUsersPage() {
           </table>
         </div>
       )}
-    </div>
+    </Page>
   );
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
@@ -8,15 +7,24 @@ import { auth } from "@/lib/auth/server";
 import { displayName } from "@/lib/auth/config";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { describeUserAgent, formatDateTime, formatDate } from "@/lib/format/session";
-import { Avatar, Badge, EmptyState } from "@/components/ui";
+import {
+  describeUserAgent,
+  formatDateTime,
+  formatDate,
+  formatIpAddress,
+} from "@/lib/format/session";
+import {
+  Avatar,
+  Badge,
+  DetailList,
+  EmptyState,
+  Page,
+  PageHeader,
+  Section,
+} from "@/components/ui";
 import { ImpersonateButton } from "@/components/orbit/impersonate-button";
 import { UserAdminPanel } from "./user-admin-panel";
-import {
-  ArrowLeftIcon,
-  DevicesIcon,
-  MonitorIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { DevicesIcon, MonitorIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const dynamic = "force-dynamic";
 
@@ -63,69 +71,61 @@ export default async function UserDetailPage({ params }: PageProps) {
   const name = displayName(user);
 
   return (
-    <div className="flex flex-col gap-8">
-      <Link
-        href="/orbit/users"
-        className="inline-flex w-fit items-center gap-1 text-sm text-base-content/70 transition-colors hover:text-base-content"
-      >
-        <ArrowLeftIcon size={14} aria-hidden="true" />
-        All users
-      </Link>
+    <Page>
+      <PageHeader
+        backTo={{ href: "/orbit/users", label: "All users" }}
+        title={
+          <span className="flex items-center gap-3">
+            <Avatar src={user.image} name={name} size="xl" shape="squircle" />
+            <span className="min-w-0">
+              <span className="block truncate">{name}</span>
+              <span className="block truncate text-sm font-normal text-base-content/70">
+                {user.email}
+              </span>
+            </span>
+          </span>
+        }
+        meta={
+          <>
+            <Badge tone={user.role === "admin" ? "primary" : "ghost"}>
+              {user.role}
+            </Badge>
+            {isSelf && <Badge tone="info">You</Badge>}
+            {user.banned && <Badge tone="error">Banned</Badge>}
+            <Badge tone={user.emailVerified ? "success" : "warning"}>
+              {user.emailVerified ? "Email verified" : "Email unverified"}
+            </Badge>
+          </>
+        }
+        actions={
+          <ImpersonateButton
+            userId={user.id}
+            disabled={user.role === "admin" || isSelf || Boolean(user.banned)}
+          />
+        }
+      />
 
-      {/* ── Identity ── */}
-      <header className="flex flex-wrap items-start justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <Avatar src={user.image} name={name} size="2xl" shape="squircle" />
-          <div>
-            <h1 className="text-2xl font-semibold">{name}</h1>
-            <p className="text-sm text-base-content/70">{user.email}</p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <Badge tone={user.role === "admin" ? "primary" : "ghost"}>
-                {user.role}
-              </Badge>
-              {isSelf && <Badge tone="info">You</Badge>}
-              {user.banned && <Badge tone="error">Banned</Badge>}
-              <Badge tone={user.emailVerified ? "success" : "warning"}>
-                {user.emailVerified ? "Email verified" : "Email unverified"}
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <ImpersonateButton
-          userId={user.id}
-          disabled={user.role === "admin" || isSelf || Boolean(user.banned)}
-        />
-      </header>
-
-      <dl className="grid grid-cols-2 gap-x-8 gap-y-4 border-y border-base-300 py-5 text-sm sm:grid-cols-4">
-        <Detail label="Joined" value={formatDate(user.createdAt)} />
-        <Detail label="Last updated" value={formatDate(user.updatedAt)} />
-        <Detail
-          label="Active sessions"
-          value={String(activeSessions.length)}
-        />
-        <Detail
-          label="Sign-in methods"
-          value={
-            accounts.length === 0
-              ? "Magic link only"
-              : accounts.map((a) => a.providerId).join(", ")
-          }
-        />
-      </dl>
+      <DetailList
+        items={[
+          { label: "Joined", value: formatDate(user.createdAt) },
+          { label: "Last updated", value: formatDate(user.updatedAt) },
+          { label: "Active sessions", value: String(activeSessions.length) },
+          {
+            label: "Sign-in methods",
+            value:
+              accounts.length === 0
+                ? "Magic link only"
+                : accounts.map((a) => a.providerId).join(", "),
+          },
+        ]}
+      />
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
         {/* ── Sessions ── */}
-        <section className="flex flex-col gap-4">
-          <div>
-            <h2 className="text-sm font-semibold">Login sessions</h2>
-            <p className="mt-1 text-sm text-base-content/60">
-              Every device with a live session for this account. Each row is a
-              row in the <code className="rounded bg-base-300 px-1">sessions</code>{" "}
-              table, validated on every request.
-            </p>
-          </div>
+        <Section
+          title="Login sessions"
+          description="Every device with a live session for this account. Each row is a row in the sessions table, validated on every request."
+        >
 
           {activeSessions.length === 0 ? (
             <EmptyState
@@ -154,7 +154,7 @@ export default async function UserDetailPage({ params }: PageProps) {
                         )}
                       </div>
                       <div className="mt-0.5 font-mono text-xs text-base-content/60">
-                        {s.ipAddress || "unknown IP"}
+                        {formatIpAddress(s.ipAddress)}
                       </div>
                       <div className="mt-1 text-xs text-base-content/60">
                         Started {formatDateTime(s.createdAt)}
@@ -168,7 +168,7 @@ export default async function UserDetailPage({ params }: PageProps) {
               ))}
             </ul>
           )}
-        </section>
+        </Section>
 
         {/* ── Admin controls ── */}
         <aside className="lg:border-l lg:border-base-300 lg:pl-8">
@@ -183,7 +183,7 @@ export default async function UserDetailPage({ params }: PageProps) {
           />
         </aside>
       </div>
-    </div>
+    </Page>
   );
 }
 
@@ -196,13 +196,3 @@ interface SessionRow {
   impersonatedBy?: string | null;
 }
 
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs tracking-wide text-base-content/60 uppercase">
-        {label}
-      </dt>
-      <dd className="mt-1 font-medium">{value}</dd>
-    </div>
-  );
-}

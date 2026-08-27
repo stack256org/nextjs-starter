@@ -7,7 +7,16 @@ import { users, sessions } from "@/lib/db/schema";
 import { listQueues, QueueUnavailableError } from "@/lib/queue/admin";
 import { displayName } from "@/lib/auth/config";
 import { formatDate } from "@/lib/format/session";
-import { Alert, Avatar, Badge, EmptyState } from "@/components/ui";
+import {
+  Alert,
+  Avatar,
+  Badge,
+  EmptyState,
+  MetricBand,
+  Page,
+  PageHeader,
+  Section,
+} from "@/components/ui";
 import { UsersIcon, ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: "Overview · Orbit Admin" };
@@ -67,13 +76,11 @@ export default async function OrbitPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-10">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-        <p className="mt-1.5 text-sm text-base-content/70">
-          Who is using this instance, and what the workers are doing.
-        </p>
-      </header>
+    <Page>
+      <PageHeader
+        title="Overview"
+        description="Who is using this instance, and what the workers are doing."
+      />
 
       {queues === null && (
         <Alert tone="error" title="Can't reach the job queue" assertive>
@@ -87,27 +94,13 @@ export default async function OrbitPage() {
         </Alert>
       )}
 
-      {/* Metrics in a rule-separated band — no card boxes. */}
-      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-box bg-base-300 sm:grid-cols-3 lg:grid-cols-6">
-        {metrics.map((metric) => (
-          <div key={metric.label} className="bg-base-100 px-4 py-5">
-            <dt className="text-xs tracking-wide text-base-content/60 uppercase">
-              {metric.label}
-            </dt>
-            <dd
-              className={`mt-1.5 font-mono text-2xl ${metric.alert ? "text-error" : ""}`}
-            >
-              {metric.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <MetricBand metrics={metrics} />
 
       <div className="grid gap-10 lg:grid-cols-2">
         {/* ── Newest users ── */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-medium">Newest users</h2>
+        <Section
+          title="Newest users"
+          actions={
             <Link
               href="/orbit/users"
               className="inline-flex items-center gap-1 text-sm text-base-content/70 transition-colors hover:text-base-content"
@@ -115,7 +108,8 @@ export default async function OrbitPage() {
               All users
               <ArrowRightIcon size={13} aria-hidden="true" />
             </Link>
-          </div>
+          }
+        >
 
           {recentUsers.length === 0 ? (
             <EmptyState
@@ -154,12 +148,12 @@ export default async function OrbitPage() {
               ))}
             </ul>
           )}
-        </section>
+        </Section>
 
         {/* ── Queues ── */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-medium">Queues</h2>
+        <Section
+          title="Queues"
+          actions={
             <Link
               href="/orbit/queues"
               className="inline-flex items-center gap-1 text-sm text-base-content/70 transition-colors hover:text-base-content"
@@ -167,7 +161,8 @@ export default async function OrbitPage() {
               Manage jobs
               <ArrowRightIcon size={13} aria-hidden="true" />
             </Link>
-          </div>
+          }
+        >
 
           {!queues || queues.length === 0 ? (
             <p className="border-y border-base-300 py-4 text-sm text-base-content/60">
@@ -203,8 +198,8 @@ export default async function OrbitPage() {
               ))}
             </ul>
           )}
-        </section>
+        </Section>
       </div>
-    </div>
+    </Page>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { getSession } from "@/lib/auth/helpers";
 import { auth } from "@/lib/auth/server";
+import { Page, PageHeader, Section } from "@/components/ui";
 import { ThemePicker } from "./theme-picker";
 import { SessionList } from "./session-list";
 
@@ -9,6 +10,10 @@ export const metadata: Metadata = { title: "Settings · Next.js Starter" };
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Settings is preferences and security — how the app behaves for you, and
+ * who is currently signed in. Identity lives on Profile.
+ */
 export default async function SettingsPage() {
   const session = await getSession({ requireAuth: true });
   if (!session) return null;
@@ -29,36 +34,33 @@ export default async function SettingsPage() {
     .sort((a, b) => Number(b.isCurrent) - Number(a.isCurrent));
 
   return (
-    <div className="flex max-w-2xl flex-col gap-12">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-1.5 text-sm text-base-content/70">
-          Appearance and account security.
-        </p>
-      </header>
+    <Page className="max-w-2xl">
+      <PageHeader
+        title="Settings"
+        description="Appearance and account security."
+      />
 
-      <section className="flex flex-col gap-4">
-        <div>
-          <h2 className="font-medium">Appearance</h2>
-          <p className="mt-1 max-w-[62ch] text-sm text-base-content/70">
-            Stored in this browser, so it does not follow you to other devices.
-          </p>
-        </div>
+      <Section
+        title="Appearance"
+        description="Stored in this browser, so it does not follow you to other devices."
+      >
         <ThemePicker />
-      </section>
+      </Section>
 
-      <section className="flex flex-col gap-4 border-t border-base-300 pt-10">
-        <div>
-          <h2 className="font-medium">Active sessions</h2>
-          <p className="mt-1 max-w-[62ch] text-sm text-base-content/70">
+      <Section
+        divided
+        title="Active sessions"
+        description={
+          <>
             Every device signed in as{" "}
             <span className="font-medium">{session.user.email}</span>. Sessions
-            are stored in the database and checked on every request, so signing
+            live in the database and are checked on every request, so signing
             one out takes effect immediately.
-          </p>
-        </div>
+          </>
+        }
+      >
         <SessionList sessions={sessions} />
-      </section>
-    </div>
+      </Section>
+    </Page>
   );
 }

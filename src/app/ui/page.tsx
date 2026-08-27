@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Container } from "@/components/ui";
 import { Gallery } from "./gallery";
 
 /**
@@ -31,17 +32,19 @@ const CONTENTS = [
 export default function UiPage() {
   return (
     <div className="min-h-[100dvh] bg-base-100">
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-base-300 bg-base-100/95 px-4 backdrop-blur sm:px-6">
-        <div className="flex flex-1 items-center gap-3">
-          <Link href="/" className="font-semibold">
-            Next.js Starter
-          </Link>
-          <span className="text-sm text-base-content/50">Components</span>
-        </div>
-        <ThemeToggle />
+      <header className="sticky top-0 z-30 border-b border-base-300 bg-base-100/95 backdrop-blur">
+        <Container className="flex h-16 items-center gap-4">
+          <div className="flex flex-1 items-center gap-3">
+            <Link href="/" className="font-semibold">
+              Next.js Starter
+            </Link>
+            <span className="text-sm text-base-content/50">Components</span>
+          </div>
+          <ThemeToggle />
+        </Container>
       </header>
 
-      <div className="mx-auto flex max-w-6xl gap-12 px-4 py-10 sm:px-6">
+      <Container className="flex gap-12 py-10">
         {/* Contents rail — asymmetric layout rather than a centred column. */}
         <nav
           aria-label="Components"
@@ -89,7 +92,7 @@ export default function UiPage() {
 
           <Gallery />
         </main>
-      </div>
+      </Container>
     </div>
   );
 }

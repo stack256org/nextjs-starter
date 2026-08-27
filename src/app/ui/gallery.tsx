@@ -18,7 +18,6 @@ import {
   FormFieldset,
   Input,
   Modal,
-  NativeSelect,
   PopoverMenu,
   RadioGroup,
   Select,
@@ -196,26 +195,21 @@ export function Gallery() {
       {/* ── Select ── */}
       <GallerySection
         id="select"
-        title="Select, NativeSelect and Combobox"
-        description="Listbox for rich options, a native select for forms that post natively and for mobile OS pickers, and a Combobox when the list is long enough to need type-ahead."
+        title="Select and Combobox"
+        description="Listbox for choosing from a known list, Combobox when it is long enough to need type-ahead. There is no native select wrapper — every control in this set is a Headless UI primitive, so keyboard behaviour and ARIA are consistent and DaisyUI supplies only the styling."
         usage={`<Select options={regions} value={region} onChange={setRegion} />
 <Combobox items={team} value={member} onChange={setMember} />`}
       >
         <div className="grid max-w-xl gap-5">
           <Select
-            label="Region (Listbox)"
+            label="Region"
+            description="Built on Headless UI's Listbox."
             options={REGIONS}
             value={region}
             onChange={setRegion}
           />
-          <NativeSelect
-            label="Region (native select)"
-            description="Better on mobile — opens the OS picker."
-            options={REGIONS}
-            defaultValue="us-east-2"
-          />
           <Combobox
-            label="Assign to (Combobox)"
+            label="Assign to"
             description="Type to filter."
             items={TEAM}
             value={member}

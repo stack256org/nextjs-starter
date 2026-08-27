@@ -14,6 +14,7 @@
 | Impersonation | BetterAuth admin plugin |
 | Email | Nodemailer + SMTP (Mailpit for local dev) |
 | Icons | Phosphor Icons (`@phosphor-icons/react`) |
+| Theming | DaisyUI tokens + a local provider (no next-themes) |
 | Lint | Oxlint |
 | Package manager | pnpm |
 
@@ -41,7 +42,6 @@ src/
 │   ├── api/auth/[...all]/route.ts  # BetterAuth catch-all (toNextJsHandler)
 │   └── favicon.ico
 ├── components/
-│   ├── theme-provider.tsx        # next-themes wrapper
 │   ├── theme-toggle.tsx          # Light/dark toggle
 │   ├── dashboard-navbar.tsx      # Top navbar for /dashboard
 │   ├── impersonation-banner.tsx  # Shown on any impersonated session
@@ -63,7 +63,7 @@ src/
     │   └── templates/            # HTML email layout + magic-link template
     ├── env/load.ts               # Env loading for non-Next.js entry points
     ├── format/                   # Date and User-Agent formatting
-    ├── hooks/use-hydrated.ts     # SSR-safe "are we on the client yet?"
+    ├── theme/                    # Theme config, pre-paint script, provider
     └── queue/
         ├── index.ts              # Init, queue registry
         ├── jobs.ts               # sendJob(), registerWorker()

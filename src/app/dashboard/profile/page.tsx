@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/helpers";
 import { auth } from "@/lib/auth/server";
 import { displayName } from "@/lib/auth/config";
 import { formatDate } from "@/lib/format/session";
-import { Badge } from "@/components/ui";
+import { Badge, Page, PageHeader, Section } from "@/components/ui";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "Profile · Next.js Starter" };
@@ -17,23 +17,25 @@ const PROVIDER_LABELS: Record<string, string> = {
   credential: "Email and password",
 };
 
+/**
+ * Profile is identity — who you are and how you sign in.
+ * Preferences and security live on Settings, so the two never overlap.
+ */
 export default async function ProfilePage() {
   const session = await getSession({ requireAuth: true });
   if (!session) return null;
 
-  // A magic-link-only user has no rows here — that's expected, not an error.
+  // A magic-link-only user has no rows here — expected, not an error.
   const accounts = await auth.api
     .listUserAccounts({ headers: await headers() })
     .catch(() => []);
 
   return (
-    <div className="flex max-w-2xl flex-col gap-12">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="mt-1.5 text-sm text-base-content/70">
-          How you appear across the app.
-        </p>
-      </header>
+    <Page className="max-w-2xl">
+      <PageHeader
+        title="Profile"
+        description="How you appear across the app."
+      />
 
       <ProfileForm
         name={displayName(session.user)}
@@ -41,14 +43,11 @@ export default async function ProfilePage() {
         image={session.user.image ?? null}
       />
 
-      <section className="flex flex-col gap-4 border-t border-base-300 pt-10">
-        <div>
-          <h2 className="font-medium">Sign-in methods</h2>
-          <p className="mt-1 text-sm text-base-content/70">
-            How you get into this account.
-          </p>
-        </div>
-
+      <Section
+        divided
+        title="Sign-in methods"
+        description="How you get into this account."
+      >
         <ul className="divide-y divide-base-300 border-y border-base-300">
           <li className="flex items-center justify-between gap-4 py-3.5">
             <span className="text-sm font-medium">Magic link</span>
@@ -71,25 +70,15 @@ export default async function ProfilePage() {
           ))}
         </ul>
 
-        <dl className="flex flex-wrap gap-x-10 gap-y-3 text-sm">
-          <div>
-            <dt className="text-xs tracking-wide text-base-content/50 uppercase">
-              Member since
-            </dt>
-            <dd className="mt-1">{formatDate(session.user.createdAt)}</dd>
-          </div>
-          <div>
-            <dt className="text-xs tracking-wide text-base-content/50 uppercase">
-              Email status
-            </dt>
-            <dd className="mt-1">
-              <Badge tone={session.user.emailVerified ? "success" : "warning"}>
-                {session.user.emailVerified ? "Verified" : "Unverified"}
-              </Badge>
-            </dd>
-          </div>
-        </dl>
-      </section>
-    </div>
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
+          <span className="text-base-content/70">
+            Member since {formatDate(session.user.createdAt)}
+          </span>
+          <Badge tone={session.user.emailVerified ? "success" : "warning"}>
+            {session.user.emailVerified ? "Email verified" : "Email unverified"}
+          </Badge>
+        </div>
+      </Section>
+    </Page>
   );
 }

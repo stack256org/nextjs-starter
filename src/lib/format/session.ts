@@ -38,6 +38,27 @@ export function describeUserAgent(userAgent: string | null | undefined): string 
   return os ? `${browser} on ${os}` : browser;
 }
 
+/**
+ * Renders an IP address for display.
+ *
+ * Node reports loopback as the fully-expanded IPv6 form
+ * `0000:0000:0000:0000:0000:0000:0000:0000`, which is 39 characters of noise
+ * in a session list. Collapse the local addresses to a readable label and
+ * leave real addresses untouched.
+ */
+export function formatIpAddress(ip: string | null | undefined): string {
+  if (!ip) return "Unknown IP";
+
+  const normalised = ip.replace(/^::ffff:/i, "");
+  const isLoopback =
+    normalised === "::1" ||
+    normalised === "127.0.0.1" ||
+    /^0{1,4}(:0{1,4}){7}$/.test(normalised) ||
+    normalised === "::";
+
+  return isLoopback ? "This machine" : normalised;
+}
+
 export function formatDateTime(value: string | Date): string {
   return new Date(value).toLocaleString(undefined, {
     dateStyle: "medium",

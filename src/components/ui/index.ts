@@ -11,7 +11,25 @@
  *  - DaisyUI classes that depend on a hidden `input` (`dropdown-content`,
  *    `collapse`, `checkbox`, `toggle`) are NOT reused, because Headless UI
  *    renders its own markup and the two open/closed models fight each other.
+ *  - No native form controls. There is no `<select>`, no bare `<input>` and no
+ *    bare `<button>` in the app — every control is a Headless UI primitive so
+ *    keyboard behaviour, focus management and ARIA are consistent, and DaisyUI
+ *    supplies only the styling.
  */
+
+// ── Layout ────────────────────────────────────────────────────
+export { Container } from "./container";
+export type { ContainerProps, ContainerSize } from "./container";
+
+export {
+  Page,
+  PageHeader,
+  Section,
+  Stack,
+  DetailList,
+  MetricBand,
+} from "./layout";
+export type { PageHeaderProps, SectionProps, Gap } from "./layout";
 
 // ── Actions ───────────────────────────────────────────────────
 export { Button, ButtonLink } from "./button";
@@ -46,9 +64,6 @@ export type { ToggleProps, SwitchProps } from "./toggle";
 
 export { Select, Listbox } from "./select";
 export type { SelectProps, SelectOption } from "./select";
-
-export { NativeSelect } from "./native-select";
-export type { NativeSelectProps, NativeSelectOption } from "./native-select";
 
 export { Combobox } from "./combobox";
 export type { ComboboxProps, ComboboxItem } from "./combobox";

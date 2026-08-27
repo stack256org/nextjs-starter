@@ -7,7 +7,11 @@ import {
   revokeOtherSessions,
   type ActionResult,
 } from "@/lib/auth/actions";
-import { describeUserAgent, formatDateTime } from "@/lib/format/session";
+import {
+  describeUserAgent,
+  formatDateTime,
+  formatIpAddress,
+} from "@/lib/format/session";
 import { Alert, Badge, Button, Modal } from "@/components/ui";
 import { MonitorIcon } from "@phosphor-icons/react/dist/ssr";
 
@@ -63,7 +67,7 @@ export function SessionList({ sessions }: { sessions: SessionRow[] }) {
                   {session.isCurrent && <Badge tone="primary">This device</Badge>}
                 </div>
                 <div className="mt-0.5 font-mono text-xs text-base-content/60">
-                  {session.ipAddress || "unknown IP"}
+                  {formatIpAddress(session.ipAddress)}
                 </div>
                 <div className="mt-1 text-xs text-base-content/60">
                   Signed in {formatDateTime(session.createdAt)}

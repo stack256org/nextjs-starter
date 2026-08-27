@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/helpers";
 import {
@@ -8,8 +7,14 @@ import {
   listQueues,
   QueueUnavailableError,
 } from "@/lib/queue/admin";
-import { Alert, Badge, ButtonLink } from "@/components/ui";
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  Alert,
+  Badge,
+  ButtonLink,
+  MetricBand,
+  Page,
+  PageHeader,
+} from "@/components/ui";
 import { JobTable } from "./job-table";
 
 export const dynamic = "force-dynamic";
@@ -52,12 +57,15 @@ export default async function QueueDetailPage({ params, searchParams }: PageProp
   } catch (err) {
     if (!(err instanceof QueueUnavailableError)) throw err;
     return (
-      <div className="flex flex-col gap-6">
-        <BackLink />
+      <Page>
+        <PageHeader
+          title={queueName}
+          backTo={{ href: "/orbit/queues", label: "All queues" }}
+        />
         <Alert tone="error" title="Can't reach the job queue" assertive>
           pgBoss could not be contacted. Check that PostgreSQL is running.
         </Alert>
-      </div>
+      </Page>
     );
   }
 
@@ -67,7 +75,7 @@ export default async function QueueDetailPage({ params, searchParams }: PageProp
   // oxlint-disable-next-line purity
   const renderedAt = Date.now();
 
-  const stats = [
+  const metrics = [
     { label: "Waiting", value: queue.ready },
     // Deferred jobs are queued but dated in the future, so they show in
     // neither "waiting" nor "running" — without this row they look lost.
@@ -79,40 +87,25 @@ export default async function QueueDetailPage({ params, searchParams }: PageProp
   ];
 
   return (
-    <div className="flex flex-col gap-6">
-      <BackLink />
+    <Page>
+      <PageHeader
+        title={<span className="font-mono">{queue.name}</span>}
+        backTo={{ href: "/orbit/queues", label: "All queues" }}
+        description={
+          queue.hasHandler
+            ? "A worker handler is registered for this queue."
+            : "No worker handler is registered — jobs here will never be processed."
+        }
+        meta={
+          queue.hasHandler ? (
+            <Badge tone="success">worker registered</Badge>
+          ) : (
+            <Badge tone="warning">no handler</Badge>
+          )
+        }
+      />
 
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-mono text-2xl font-semibold">{queue.name}</h1>
-          <p className="mt-1 text-sm text-base-content/70">
-            {queue.hasHandler
-              ? "A worker handler is registered for this queue."
-              : "No worker handler is registered — jobs here will never be processed."}
-          </p>
-        </div>
-        {queue.hasHandler ? (
-          <Badge tone="success">worker registered</Badge>
-        ) : (
-          <Badge tone="warning">no handler</Badge>
-        )}
-      </header>
-
-      {/* Metrics separated by rules rather than boxed in cards. */}
-      <dl className="grid grid-cols-2 divide-base-300 border-y border-base-300 sm:grid-cols-6 sm:divide-x">
-        {stats.map((stat) => (
-          <div key={stat.label} className="px-4 py-4 first:pl-0">
-            <dt className="text-xs tracking-wide text-base-content/60 uppercase">
-              {stat.label}
-            </dt>
-            <dd
-              className={`mt-1 font-mono text-2xl ${stat.alert ? "text-error" : ""}`}
-            >
-              {stat.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <MetricBand metrics={metrics} />
 
       <JobTable queue={queue.name} jobs={result.jobs} renderedAt={renderedAt} />
 
@@ -142,7 +135,7 @@ export default async function QueueDetailPage({ params, searchParams }: PageProp
           </div>
         </nav>
       )}
-    </div>
+    </Page>
   );
 }
 
@@ -154,14 +147,3 @@ function buildHref(queue: string, state: string | undefined, page: number) {
   return `/orbit/queues/${encodeURIComponent(queue)}${query ? `?${query}` : ""}`;
 }
 
-function BackLink() {
-  return (
-    <Link
-      href="/orbit/queues"
-      className="inline-flex w-fit items-center gap-1 text-sm text-base-content/70 transition-colors hover:text-base-content"
-    >
-      <ArrowLeftIcon size={14} aria-hidden="true" />
-      All queues
-    </Link>
-  );
-}
