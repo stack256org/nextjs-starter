@@ -20,15 +20,20 @@ topic has its own dedicated file:
 - [`docs/worker.md`](docs/worker.md) — pgBoss job queue setup and usage
 - [`docs/themes.md`](docs/themes.md) — Light/dark mode with next-themes and
   DaisyUI, plus Phosphor icons
-- [`docs/auth.md`](docs/auth.md) — BetterAuth setup, auth flow, admin guide
+- [`docs/auth.md`](docs/auth.md) — BetterAuth setup, auth flow, admin guide, SMTP
 - [`docs/rules.md`](docs/rules.md) — Engineering rules that must always be followed
 
 ## Quick Start
 
 ```bash
-npm install
-cp .env.example .env.local   # set DATABASE_URL, BETTER_AUTH_SECRET, ADMIN_EMAILS
-npm run db:migrate            # create database tables
-npm run dev -- --port 3003   # start the app
-npm run worker               # start the pgBoss worker (separate terminal)
+pnpm install
+cp .env.example .env.local   # set DATABASE_URL, BETTER_AUTH_SECRET, SMTP_*
+pnpm db:migrate              # create database tables
+pnpm dev --port 3003          # start the app
+pnpm worker                   # start the pgBoss worker (separate terminal)
+```
+
+**Admin promotion:**
+```bash
+pnpm make:admin user@example.com
 ```

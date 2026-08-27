@@ -13,6 +13,7 @@ interface OrbitTopbarProps {
     name: string;
     email: string;
     image?: string | null;
+    role?: string;
   };
   isImpersonating: boolean;
 }

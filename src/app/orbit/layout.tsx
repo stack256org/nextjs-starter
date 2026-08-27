@@ -19,11 +19,10 @@ export default async function OrbitLayout({
   const session = await getSession({ requireAuth: true });
   if (!session) return null;
 
-  // Server-side admin gate
+  // Server-side admin gate — check role only (no email whitelist)
   const userRole = (session.user as { role?: string }).role;
-  const { isAdminEmail } = await import("@/lib/auth/config");
 
-  if (userRole !== "admin" && !isAdminEmail(session.user.email)) {
+  if (userRole !== "admin") {
     const { redirect } = await import("next/navigation");
     redirect("/dashboard");
   }
@@ -43,6 +42,7 @@ export default async function OrbitLayout({
           name: session.user.name,
           email: session.user.email,
           image: session.user.image,
+          role: (session.user as { role?: string }).role ?? "user",
         }}
         isImpersonating={isImpersonating}
       />

@@ -19,15 +19,15 @@ Copy `.env.example` to `.env.local` and fill in your values:
 cp .env.example .env.local
 ```
 
-## npm Scripts
+## pnpm Scripts
 
 | Command | Description |
 |---|---|
-| `npm run db:generate` | Generate a new SQL migration from schema changes |
-| `npm run db:migrate` | Apply pending migrations (Drizzle Kit CLI) |
-| `npm run db:migrate:run` | Apply migrations programmatically (for Docker startup) |
-| `npm run db:push` | Push schema changes to the database without generating migration files (dev only) |
-| `npm run db:studio` | Open the Drizzle Studio web GUI |
+| `pnpm db:generate` | Generate a new SQL migration from schema changes |
+| `pnpm db:migrate` | Apply pending migrations (Drizzle Kit CLI) |
+| `pnpm db:migrate:run` | Apply migrations programmatically (for Docker startup) |
+| `pnpm db:push` | Push schema changes to the database without generating migration files (dev only) |
+| `pnpm db:studio` | Open the Drizzle Studio web GUI |
 
 ## Usage Example
 

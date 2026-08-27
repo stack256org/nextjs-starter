@@ -7,7 +7,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth/client";
 import { Avatar } from "@/components/ui/avatar";
 import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
-import { isAdminEmail } from "@/lib/auth/config";
 
 interface DashboardNavbarProps {
   user: {
@@ -15,6 +14,7 @@ interface DashboardNavbarProps {
     name: string;
     email: string;
     image?: string | null;
+    role?: string;
   };
 }
 
@@ -26,7 +26,7 @@ const navItems = [
 export function DashboardNavbar({ user }: DashboardNavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const isUserAdmin = isAdminEmail(user.email);
+  const isUserAdmin = user.role === "admin";
 
   async function handleSignOut() {
     await authClient.signOut();

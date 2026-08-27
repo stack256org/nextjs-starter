@@ -1,7 +1,8 @@
 import { initQueue, closeQueue } from "./index";
 import { registerWorker } from "./jobs";
+import { sendEmail } from "@/lib/email/send";
 import { db } from "@/lib/db";
-import { posts, users } from "@/lib/db/schema";
+import { posts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import type { Job } from "pg-boss";
 
@@ -11,23 +12,32 @@ import type { Job } from "pg-boss";
  * contains the payload sent via `sendJob`.
  */
 
-/** Sends a welcome email to a newly registered user. */
-async function handleSendEmail(
-  job: Job<{ userId: string; subject: string; body: string }>,
-) {
-  const { userId, subject, body } = job.data;
+interface SendEmailData {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}
 
-  const [user] = await db.select().from(users).where(eq(users.id, userId));
+/**
+ * Sends an email via SMTP (Nodemailer) using credentials from
+ * environment variables.  This runs in the **worker process**,
+ * so slow SMTP operations never block the web server.
+ *
+ * The job payload includes `to`, `subject`, `html`, and optionally
+ * `text`.  The SMTP transport is configured in `src/lib/email/send.ts`.
+ */
+async function handleSendEmail(job: Job<SendEmailData>) {
+  const { to, subject, html, text } = job.data;
 
-  if (!user) {
-    console.warn(`⚠️ User ${userId} not found, skipping email`);
-    return;
-  }
+  await sendEmail({
+    to,
+    subject,
+    html,
+    text,
+  });
 
-  // TODO: Integrate your email provider (Resend, SendGrid, etc.)
-  console.log(`📧 Sending email to ${user.email}`);
-  console.log(`   Subject: ${subject}`);
-  console.log(`   Body: ${body}`);
+  console.log(`✅ Email queued and sent to ${to} (subject: ${subject})`);
 }
 
 /** Recalculates a post's view count (example background processing). */
@@ -57,7 +67,7 @@ async function handleProcessPost(job: Job<{ postId: string }>) {
  * This sets up all job handlers and keeps the process alive.
  * Run it as a separate process alongside your Next.js app:
  *
- *   npm run worker
+ *   pnpm worker
  *
  * In production (e.g. Docker), run the compiled version:
  *   node src/lib/queue/worker.cli.js

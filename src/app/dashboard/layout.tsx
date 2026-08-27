@@ -23,6 +23,7 @@ export default async function DashboardLayout({
           name: session.user.name,
           email: session.user.email,
           image: session.user.image,
+          role: (session.user as { role?: string }).role ?? "user",
         }}
       />
       <main className="container mx-auto px-4 py-6">{children}</main>

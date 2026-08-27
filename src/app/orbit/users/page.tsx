@@ -16,10 +16,10 @@ export default async function OrbitUsersPage() {
   const session = await getSession({ requireAuth: true });
   if (!session) return null;
 
+  // Server-side admin gate — check role only (no email whitelist)
   const userRole = (session.user as { role?: string }).role;
-  const { isAdminEmail } = await import("@/lib/auth/config");
 
-  if (userRole !== "admin" && !isAdminEmail(session.user.email)) {
+  if (userRole !== "admin") {
     const { redirect } = await import("next/navigation");
     redirect("/dashboard");
   }

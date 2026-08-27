@@ -7,10 +7,10 @@ job processing. pgBoss stores its job queue tables inside your existing
 PostgreSQL database, so no separate queue broker (Redis, RabbitMQ, etc.) is
 needed.
 
-## npm Script
+## pnpm Script
 
 ```bash
-npm run worker          # Start the pgBoss worker process
+pnpm worker          # Start the pgBoss worker process
 ```
 
 Run this as a **separate process** alongside your Next.js app — for example,
@@ -25,7 +25,7 @@ Defined in `src/lib/queue/jobs.ts`:
 
 | Job type | Handler | Description |
 |---|---|---|
-| `send-email` | `handleSendEmail` | Sends an email to a user (look up by `userId`) |
+| `send-email` | `handleSendEmail` | Sends an email via SMTP (Nodemailer) — used for magic links |
 | `process-post` | `handleProcessPost` | Increments a post's view count |
 
 ### Sending Jobs
@@ -34,9 +34,10 @@ Defined in `src/lib/queue/jobs.ts`:
 import { sendJob } from "@/lib/queue/jobs";
 
 await sendJob("send-email", {
-  userId: 1,
+  to: "user@example.com",
   subject: "Welcome!",
-  body: "Thanks for joining...",
+  html: "<p>Thanks for joining...</p>",
+  text: "Thanks for joining...",
 });
 ```
 
@@ -58,3 +59,8 @@ drain in-flight jobs before exiting.
 | Variable | Description |
 |---|---|
 | `PGBOSS_DATABASE_URL` | PostgreSQL connection for the queue. Falls back to `DATABASE_URL` if not set. |
+| `SMTP_HOST` | SMTP server hostname (e.g. `localhost` for Mailpit) |
+| `SMTP_PORT` | SMTP server port (e.g. `1025` for Mailpit) |
+| `SMTP_USER` | SMTP authentication username (optional for Mailpit) |
+| `SMTP_PASS` | SMTP authentication password (optional for Mailpit) |
+| `SMTP_FROM` | Default sender email address |

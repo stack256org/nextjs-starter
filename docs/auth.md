@@ -13,16 +13,22 @@ Uses [BetterAuth](https://better-auth.com) for authentication with:
 # Required — generate with: openssl rand -base64 32
 BETTER_AUTH_SECRET=your-random-secret-here
 
-# Required — where the app is served (used for OAuth callbacks)
+# Public URL — used by BetterAuth for callback URLs in OAuth
 NEXT_PUBLIC_APP_URL=http://localhost:3003
 
 # Required for Google OAuth — create at console.cloud.google.com
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# Optional — comma-separated emails that auto-promote to admin on sign-up
-# Example: ADMIN_EMAILS=you@yourdomain.com,team@yourdomain.com
-NEXT_PUBLIC_ADMIN_EMAILS=
+# ── SMTP Email (for magic links & notifications) ─────────────
+# Emails are sent by the pgBoss worker (pnpm worker), NOT in the
+# request handler.  This ensures slow SMTP calls never block the
+# web server.
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-smtp-username
+SMTP_PASS=your-smtp-password
+SMTP_FROM=noreply@yourapp.com
 ```
 
 ## File Layout
@@ -31,10 +37,12 @@ NEXT_PUBLIC_ADMIN_EMAILS=
 |---|---|
 | `src/lib/auth/server.ts` | BetterAuth server config (Drizzle adapter, plugins) |
 | `src/lib/auth/client.ts` | React client instance (`authClient`) |
-| `src/lib/auth/config.ts` | Client-safe config (`isAdminEmail`, `APP_URL`) |
+| `src/lib/auth/config.ts` | Client-safe config (`APP_URL`) |
 | `src/lib/auth/helpers.ts` | Server-side helpers (`getSession`, `isAdmin`, `requireAdmin`) |
-| `src/lib/auth/providers.tsx` | `AuthProvider` React context wrapper |
-| `src/lib/auth/send-magic-link-email.ts` | Email sender (logs URL in dev) |
+| `src/lib/auth/providers.tsx` | `AuthProvider` context wrapper |
+| `src/lib/auth/send-magic-link-email.ts` | Queues magic link email via pgBoss worker |
+| `src/lib/auth/make-admin.cli.ts` | CLI to promote a user to admin |
+| `src/lib/email/send.ts` | Nodemailer SMTP transport |
 | `src/app/api/auth/[...all]/route.ts` | Catch-all API route for BetterAuth |
 | `src/app/login/page.tsx` | Centralized login page |
 | `src/app/dashboard/` | User dashboard (top navbar, requires auth) |
@@ -47,15 +55,30 @@ NEXT_PUBLIC_ADMIN_EMAILS=
 1. User visits `/login`.
 2. They enter their email for a **magic link** or click **Google**.
 3. BetterAuth creates/updates the user record in the `users` table.
-4. The `databaseHooks.user.create.before` hook checks `ADMIN_EMAILS`
-   and sets `role = "admin"` if the email matches.
+   All users start with `role = "user"`.
+4. The magic link email is **queued** to pgBoss (not sent inline).
+   The worker process sends it via SMTP using Nodemailer.
 5. On success, the user is redirected to `/dashboard`.
+
+### Promoting Users to Admin
+
+No `ADMIN_EMAILS` env var is used. Instead, use one of these methods:
+
+**CLI command:**
+```bash
+pnpm make:admin user@example.com
+```
+
+This updates the `role` column directly in the database. The user will need
+to sign out and back in for the role change to take effect in their session.
+
+**Orbit Admin UI** (requires existing admin):
+1. Go to `/orbit/users`
+2. Click the "👑 Admin" / "Make Admin" button next to any user
 
 ### Admin Access
 
-An admin is any user whose:
-- `role` column in the database is `"admin"`, **or**
-- `email` is listed in the `NEXT_PUBLIC_ADMIN_EMAILS` env variable
+An admin is any user whose `role` column in the database is `"admin"`.
 
 Admins see an **Orbit Admin** link in the dashboard navbar.
 

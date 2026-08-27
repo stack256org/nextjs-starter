@@ -5,7 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins";
 import { admin } from "better-auth/plugins/admin";
 import { sendMagicLinkEmail } from "@/lib/auth/send-magic-link-email";
-import { isAdminEmail, APP_URL } from "@/lib/auth/config";
+import { APP_URL } from "@/lib/auth/config";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -17,20 +17,6 @@ export const auth = betterAuth({
   baseURL: isDev ? APP_URL : process.env.NEXT_PUBLIC_APP_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   basePath: "/api/auth",
-
-  // ── Auto-promote admins based on ADMIN_EMAILS env var ─────
-  databaseHooks: {
-    user: {
-      create: {
-        before: async (user) => {
-          if (user.email && isAdminEmail(user.email)) {
-            return { data: { ...user, role: "admin" } };
-          }
-          return { data: { ...user, role: "user" } };
-        },
-      },
-    },
-  },
 
   // ── Plugins ─────────────────────────────────────────────────
   // nextCookies() must be last — BetterAuth requires it to be

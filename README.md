@@ -13,7 +13,10 @@ Everything you need to ship a modern, self-hostable web application — all the 
 | Styling | Tailwind CSS v4 + DaisyUI v5 |
 | Database | PostgreSQL via Drizzle ORM (type-safe) |
 | Job queue | pgBoss (PostgreSQL-backed background jobs) |
+| Auth | BetterAuth (magic link + Google OAuth) |
+| Email | Nodemailer + SMTP (Mailpit for local dev) |
 | Lint | ESLint with `eslint-config-next` |
+| Package manager | pnpm |
 
 ## Project structure
 
@@ -46,9 +49,9 @@ src/
 ### Local development
 
 1. **Copy the environment file:**
-   ```bash
+```bash
    cp .env.example .env.local
-   # Edit .env.local and set your DATABASE_URL
+   # Edit .env.local and set your DATABASE_URL, BETTER_AUTH_SECRET
    ```
 
 2. **Start PostgreSQL** — point `DATABASE_URL` at a running Postgres instance.
@@ -59,42 +62,43 @@ src/
 
 3. **Run the migrations:**
    ```bash
-   npm run db:migrate
+   pnpm db:migrate
    ```
 
 4. **Start the dev server:**
    ```bash
-   npm run dev
+   pnpm dev --port 3003
    ```
 
 5. **Start the background worker** (separate terminal):
    ```bash
-   npm run worker
+   pnpm worker
    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3003](http://localhost:3003) with your browser to see the result.
 
 ## Database commands
 
 ```bash
-npm run db:generate  # Generate migration from schema changes
-npm run db:migrate   # Apply pending migrations
-npm run db:push      # Push schema without migrations (dev only)
-npm run db:studio    # Open Drizzle Studio GUI
-npm run db:migrate:run  # Apply migrations programmatically (Docker)
+pnpm db:generate  # Generate migration from schema changes
+pnpm db:migrate   # Apply pending migrations
+pnpm db:push      # Push schema without migrations (dev only)
+pnpm db:studio    # Open Drizzle Studio GUI
+pnpm db:migrate:run  # Apply migrations programmatically (Docker)
 ```
 
 ## Worker commands
 
 ```bash
-npm run worker       # Start the pgBoss worker process
+pnpm worker       # Start the pgBoss worker process
+pnpm make:admin user@example.com  # Promote a user to admin
 ```
 
 ## Available DaisyUI themes
 
 Switch themes by adding a `data-theme` attribute to the `<html>` element in `src/app/layout.tsx`:
 
-`light` (default) · `dark` · `cupcake` · `synthwave` · `valentines` · `emerald`
+`light` (default) · `dark` · `cupcake` · `synthwave` · `valentines` · `emerald` · `dim` (Orbit Admin)
 
 ## License
 

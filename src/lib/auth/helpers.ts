@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
-import { isAdminEmail } from "@/lib/auth/config";
 import { headers } from "next/headers";
 
 /**
@@ -22,18 +21,16 @@ export async function getSession(
 }
 
 /**
- * Returns `true` if the current user has admin access — either their
- * email is in `ADMIN_EMAILS` or their database role is `"admin"`.
+ * Returns `true` if the current user has the "admin" role in the database.
+ * Roles are checked solely via the `role` column on the `users` table.
+ * Use the `make-admin` CLI command to promote a user to admin.
  */
 export async function isAdmin(): Promise<boolean> {
   const session = await getSession();
   if (!session) return false;
 
   const userRole = (session.user as { role?: string }).role;
-  if (userRole === "admin") return true;
-  if (isAdminEmail(session.user.email)) return true;
-
-  return false;
+  return userRole === "admin";
 }
 
 /**

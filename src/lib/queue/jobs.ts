@@ -1,4 +1,4 @@
-import { boss } from "./index";
+import { boss, initQueue } from "./index";
 import type { Job, SendOptions } from "pg-boss";
 
 /**
@@ -7,9 +7,7 @@ import type { Job, SendOptions } from "pg-boss";
  */
 export type JobType = "send-email" | "process-post";
 
-/**
- * A handler function that processes a single queued job.
- */
+/** A handler function that processes a single queued job. */
 export type JobHandler<T extends object = object> = (
   job: Job<T>,
 ) => Promise<void>;
@@ -17,8 +15,12 @@ export type JobHandler<T extends object = object> = (
 /**
  * Send a job to the pgBoss queue.
  *
+ * The queue is lazily initialized on first use, so this can be
+ * called from any server-side context (API routes, BetterAuth
+ * callbacks, etc.) without pre-starting pgBoss.
+ *
  * @example
- *   await sendJob("send-email", { userId: 1, subject: "Welcome!" });
+ *   await sendJob("send-email", { to: "user@example.com", subject: "Welcome!" });
  *
  * @param name   - Job type (queue name)
  * @param data   - Payload to pass to the job handler (must be an object)
@@ -29,6 +31,7 @@ export async function sendJob<T extends object = object>(
   data: T,
   opts?: SendOptions,
 ) {
+  await initQueue();
   await boss.send(name, data, opts);
 }
 

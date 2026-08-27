@@ -12,8 +12,10 @@
 | Auth | BetterAuth (magic link + Google OAuth) |
 | Roles | BetterAuth admin plugin (user / admin) |
 | Impersonation | BetterAuth admin plugin |
+| Email | Nodemailer + SMTP (Mailpit for local dev) |
 | Icons | Phosphor Icons (`@phosphor-icons/react`) |
 | Lint | ESLint with `eslint-config-next` |
+| Package manager | pnpm |
 
 ## Project Structure
 
@@ -54,11 +56,12 @@ src/
 │       └── set-role-button.tsx
 ├── lib/
 │   ├── auth/
-│   │   ├── config.ts             # ADMIN_EMAILS + app URL (client-safe)
+│   │   ├── config.ts             # App URL (client-safe)
 │   │   ├── server.ts             # BetterAuth server instance
 │   │   ├── client.ts             # BetterAuth React client
 │   │   ├── helpers.ts            # getSession(), isAdmin(), requireAdmin()
-│   │   ├── send-magic-link-email.ts
+│   │   ├── send-magic-link-email.ts  # Queues email to pgBoss worker
+│   │   ├── make-admin.cli.ts     # CLI: pnpm make:admin <email>
 │   │   └── providers.tsx         # AuthProvider (session context)
 │   ├── db/
 │   │   ├── index.ts              # PostgreSQL pool + Drizzle db instance
@@ -66,6 +69,8 @@ src/
 │   │   ├── migrate.ts            # runMigrations()
 │   │   ├── migrate.cli.ts        # CLI entry point
 │   │   └── migrations/           # Generated SQL migration files
+│   ├── email/
+│   │   └── send.ts               # Nodemailer SMTP transport
 │   └── queue/                    # pgBoss job queue
 │       ├── index.ts
 │       ├── jobs.ts
@@ -78,10 +83,17 @@ drizzle.config.ts                # Drizzle Kit configuration
 
 1. **Sign in** — `/login` page offers magic-link email or Google OAuth.
    One centralized login for both regular users and admins.
-2. **Admin promotion** — set `ADMIN_EMAILS` in `.env.local` (comma-separated).
-   Users with matching emails get `role = "admin"` automatically on sign-up.
+2. **Magic link email** — when a user requests a magic link, the email is
+   **queued** to pgBoss (not sent inline). The worker process picks it up
+   and sends it via SMTP using Nodemailer (configured for Mailpit in dev).
+3. **Admin promotion** — use the CLI command:
+   ```bash
+   pnpm make:admin user@example.com
+   ```
+   This sets `role = "admin"` in the `users` table. The user must
+   sign out and back in for the role to take effect in their session.
 3. **User dashboard** — `/dashboard` requires auth. Top navbar with nav links
-   and a link to Orbit Admin for admins.
+   and a link to Orbit Admin for admins (based on `role` field).
 4. **Orbit Admin** — `/orbit` requires `role = "admin"`. Sidebar navigation
    with the `dim` (dark) DaisyUI theme. Supports impersonation:
    - Admin clicks "Impersonate" on any user → a new session is created as

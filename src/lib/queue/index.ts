@@ -7,21 +7,26 @@ import { PgBoss } from "pg-boss";
  * so it uses the same DATABASE_URL (or PGBOSS_DATABASE_URL if set separately).
  *
  * Usage (sending a job):
- *   import { boss } from "@/lib/queue";
- *   await boss.send("my-job", { data: "value" });
+ *   import { sendJob } from "@/lib/queue";
+ *   await sendJob("send-email", { to: "user@example.com", ... });
  *
  * Usage (in a worker — see `./worker.ts`):
  *   import { registerWorker } from "@/lib/queue";
- *   await registerWorker("my-job", async (job) => { ... });
+ *   await registerWorker("send-email", async (job) => { ... });
  */
 export const boss = new PgBoss(process.env.PGBOSS_DATABASE_URL || process.env.DATABASE_URL!);
+
+let started = false;
 
 /**
  * Initializes the pgBoss queue connection.
  * Call this before sending or processing jobs (e.g. at app startup).
+ * Safe to call multiple times — only starts once.
  */
 export async function initQueue() {
+  if (started) return;
   await boss.start();
+  started = true;
   console.log("✅ pgBoss queue initialized");
 }
 
@@ -29,6 +34,8 @@ export async function initQueue() {
  * Shut down the queue gracefully.
  */
 export async function closeQueue() {
+  if (!started) return;
   await boss.stop();
+  started = false;
   console.log("🛑 pgBoss queue stopped");
 }
