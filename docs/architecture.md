@@ -14,7 +14,7 @@
 | Impersonation | BetterAuth admin plugin |
 | Email | Nodemailer + SMTP (Mailpit for local dev) |
 | Icons | Phosphor Icons (`@phosphor-icons/react`) |
-| Lint | ESLint with `eslint-config-next` |
+| Lint | Oxlint |
 | Package manager | pnpm |
 
 ## Project Structure

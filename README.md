@@ -15,7 +15,7 @@ Everything you need to ship a modern, self-hostable web application — all the 
 | Job queue | pgBoss (PostgreSQL-backed background jobs) |
 | Auth | BetterAuth (magic link + Google OAuth) |
 | Email | Nodemailer + SMTP (Mailpit for local dev) |
-| Lint | ESLint with `eslint-config-next` |
+| Lint | Oxlint |
 | Package manager | pnpm |
 
 ## Project structure
