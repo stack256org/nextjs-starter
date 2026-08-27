@@ -25,6 +25,10 @@ export const users = pgTable(
     /** Custom field — `"user"` or `"admin"` */
     role: varchar("role", { length: 50 }).notNull().default("user"),
     is_active: boolean("is_active").notNull().default(true),
+    /** BetterAuth admin plugin fields */
+    banned: boolean("banned").default(false),
+    banReason: text("ban_reason"),
+    banExpires: timestamp("ban_expires", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
