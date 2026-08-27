@@ -134,7 +134,7 @@ export default async function UserDetailPage({ params }: PageProps) {
               description="This person isn't signed in anywhere right now."
             />
           ) : (
-            <ul className="divide-y divide-base-300 rounded-box border border-base-300">
+            <ul className="divide-y divide-base-300 overflow-hidden rounded-box border border-base-300">
               {activeSessions.map((s) => (
                 <li
                   key={s.id}

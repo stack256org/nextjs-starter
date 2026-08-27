@@ -34,6 +34,7 @@ import {
   FunnelIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { GallerySection, Row } from "./section";
+import { GalleryExtra } from "./gallery-extra";
 
 const REGIONS = [
   { value: "eu-west-1", label: "Europe (Ireland)" },
@@ -398,6 +399,8 @@ export function Gallery() {
           />
         </div>
       </GallerySection>
+
+      <GalleryExtra />
     </div>
   );
 }

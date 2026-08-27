@@ -68,6 +68,9 @@ export type { SelectProps, SelectOption } from "./select";
 export { Combobox } from "./combobox";
 export type { ComboboxProps, ComboboxItem } from "./combobox";
 
+export { SearchInput } from "./search-input";
+export type { SearchInputProps } from "./search-input";
+
 // ── Overlays ──────────────────────────────────────────────────
 export {
   Dropdown,
@@ -87,6 +90,15 @@ export type { ModalProps } from "./modal";
 export { PopoverMenu, Popover, PopoverButton, PopoverPanel, PopoverGroup } from "./popover";
 export type { PopoverMenuProps } from "./popover";
 
+export { Drawer } from "./drawer";
+export type { DrawerProps } from "./drawer";
+
+export { Tooltip } from "./tooltip";
+export type { TooltipProps } from "./tooltip";
+
+export { ToastProvider, useToast } from "./toast";
+export type { Toast, ToastTone } from "./toast";
+
 // ── Disclosure & navigation ───────────────────────────────────
 export { Tabs, TabGroup, TabList, Tab, TabPanels, TabPanel } from "./tabs";
 export type { TabsProps, TabItem } from "./tabs";
@@ -100,6 +112,32 @@ export {
 } from "./disclosure";
 export type { DisclosureItemProps } from "./disclosure";
 
+// ── Data display ──────────────────────────────────────────────
+export { Table, THead, TBody, TR, TH, TD, TEmpty } from "./table";
+export type { THProps, SortDirection } from "./table";
+
+export { Card, CardHeader } from "./card";
+export type { CardProps } from "./card";
+
+export { Stat } from "./stat";
+export type { StatProps } from "./stat";
+
+export { Progress } from "./progress";
+export type { ProgressProps } from "./progress";
+
+export { Steps } from "./steps";
+export type { Step } from "./steps";
+
+// ── Navigation ────────────────────────────────────────────────
+export { Breadcrumbs } from "./breadcrumbs";
+export type { Crumb } from "./breadcrumbs";
+
+export { Pagination } from "./pagination";
+export type { PaginationProps } from "./pagination";
+
+export { CommandPalette } from "./command-palette";
+export type { Command, CommandPaletteProps } from "./command-palette";
+
 // ── Display & feedback ────────────────────────────────────────
 export { Avatar } from "./avatar";
 export type { AvatarProps, AvatarSize } from "./avatar";
@@ -112,6 +150,20 @@ export {
   SkeletonTable,
   EmptyState,
 } from "./feedback";
+
+export { Tag } from "./tag";
+export type { TagProps } from "./tag";
+
+export { Spinner } from "./spinner";
+export type { SpinnerProps } from "./spinner";
+
+export { Divider } from "./divider";
+export type { DividerProps } from "./divider";
+
+export { Kbd, KbdCombo } from "./kbd";
+
+export { CopyButton } from "./copy-button";
+export type { CopyButtonProps } from "./copy-button";
 export type {
   AlertProps,
   AlertTone,

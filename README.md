@@ -158,10 +158,23 @@ switching the theme restyles all of it.
 import { Button, Input, Select, Modal, Dropdown, Alert } from "@/components/ui";
 ```
 
-Available: `Button` `ButtonLink` `Input` `Textarea` `Checkbox` `RadioGroup`
-`Toggle` `Select` `NativeSelect` `Combobox` `Dropdown` `Modal` `PopoverMenu`
-`Tabs` `DisclosureItem` `Avatar` `Alert` `Badge` `Skeleton` `EmptyState`
-`FormField` `FormFieldset`.
+**Layout** `Container` `Page` `PageHeader` `Section` `Stack` `DetailList`
+`MetricBand` `Card` `Divider`
+
+**Forms** `Input` `Textarea` `Checkbox` `RadioGroup` `Toggle` `Select`
+`Combobox` `SearchInput` `FormField` `FormFieldset`
+
+**Actions** `Button` `ButtonLink` `CopyButton`
+
+**Overlays** `Modal` `Drawer` `Dropdown` `PopoverMenu` `Tooltip`
+`CommandPalette` `ToastProvider` / `useToast`
+
+**Navigation** `Tabs` `DisclosureItem` `Breadcrumbs` `Pagination` `Steps`
+
+**Data** `Table` (+ `THead` `TBody` `TR` `TH` `TD` `TEmpty`) `Stat` `Progress`
+
+**Feedback** `Alert` `Badge` `Tag` `Spinner` `Skeleton` `EmptyState` `Avatar`
+`Kbd`
 
 > Three DaisyUI classes are deliberately **not** reused: `dropdown-content`,
 > `collapse`, and the `checkbox`/`toggle` input styles. Each depends on a

@@ -27,6 +27,12 @@ const CONTENTS = [
   { id: "disclosure", label: "Tabs and Disclosure" },
   { id: "feedback", label: "Alert, Badge, Avatar" },
   { id: "states", label: "Loading and empty states" },
+  { id: "table", label: "Table" },
+  { id: "surfaces", label: "Card, Stat, Divider" },
+  { id: "navigation", label: "Breadcrumbs, Pagination, Steps" },
+  { id: "overlays-2", label: "Drawer, Tooltip, Command palette" },
+  { id: "toast", label: "Toast" },
+  { id: "small", label: "Search, Tag, Kbd, Copy" },
 ];
 
 export default function UiPage() {

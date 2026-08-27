@@ -23,6 +23,12 @@ export interface DisclosureItemProps {
  * Preferred over DaisyUI's `collapse` when the content is interactive:
  * `collapse` relies on a hidden checkbox and `peer` selectors, which leaves the
  * panel in the accessibility tree even while visually closed.
+ *
+ * `overflow-hidden` on the wrapper is load-bearing, not decoration. The button
+ * spans the full width, so any background it paints — hover, focus, active —
+ * is a square that overlaps the wrapper's rounded corners unless the wrapper
+ * clips it. Every rounded container in this set whose children reach its edge
+ * carries the same clip.
  */
 export function DisclosureItem({
   title,
@@ -34,9 +40,12 @@ export function DisclosureItem({
     <HuiDisclosure
       defaultOpen={defaultOpen}
       as="div"
-      className={`rounded-box border border-base-300 bg-base-100 ${className}`}
+      className={`overflow-hidden rounded-box border border-base-300 bg-base-100 ${className}`}
     >
-      <DisclosureButton className="group flex w-full items-center justify-between gap-4 px-4 py-3 text-left text-sm font-medium transition-colors duration-150 hover:bg-base-200">
+      {/* No hover background: the caret rotating on open is the affordance,
+          and a full-width colour block on hover reads as heavier than the
+          control actually is. */}
+      <DisclosureButton className="group flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-3 text-left text-sm font-medium">
         {title}
         <CaretDownIcon
           size={16}
