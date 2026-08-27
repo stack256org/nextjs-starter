@@ -6,6 +6,10 @@ import { PgBoss } from "pg-boss";
  * pgBoss stores its queue tables inside your existing PostgreSQL database,
  * so it uses the same DATABASE_URL (or PGBOSS_DATABASE_URL if set separately).
  *
+ * The PgBoss instance is created lazily inside `initQueue()` so that
+ * environment variables are available regardless of import order (the
+ * worker CLI loads .env.local before importing this module).
+ *
  * Usage (sending a job):
  *   import { sendJob } from "@/lib/queue";
  *   await sendJob("send-email", { to: "user@example.com", ... });
@@ -14,18 +18,33 @@ import { PgBoss } from "pg-boss";
  *   import { registerWorker } from "@/lib/queue";
  *   await registerWorker("send-email", async (job) => { ... });
  */
-export const boss = new PgBoss(process.env.PGBOSS_DATABASE_URL || process.env.DATABASE_URL!);
-
+let boss: PgBoss | null = null;
 let started = false;
 
 /**
- * Initializes the pgBoss queue connection.
+ * Returns the initialized pgBoss instance.
+ * Throws if `initQueue()` hasn't been called yet.
+ */
+export function getBoss(): PgBoss {
+  if (!boss) {
+    throw new Error("pgBoss not initialized. Call initQueue() first.");
+  }
+  return boss;
+}
+
+/**
+ * Initializes the pgBoss queue connection and creates queues.
  * Call this before sending or processing jobs (e.g. at app startup).
  * Safe to call multiple times — only starts once.
  */
 export async function initQueue() {
   if (started) return;
+  boss = new PgBoss(process.env.PGBOSS_DATABASE_URL || process.env.DATABASE_URL!);
   await boss.start();
+  // Create queues so that boss.send() works even before the worker has
+  // registered its handlers (e.g. on the Next.js web server process).
+  await boss.createQueue("send-email");
+  await boss.createQueue("process-post");
   started = true;
   console.log("✅ pgBoss queue initialized");
 }
@@ -34,8 +53,9 @@ export async function initQueue() {
  * Shut down the queue gracefully.
  */
 export async function closeQueue() {
-  if (!started) return;
+  if (!started || !boss) return;
   await boss.stop();
   started = false;
+  boss = null;
   console.log("🛑 pgBoss queue stopped");
 }

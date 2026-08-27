@@ -1,4 +1,4 @@
-import { boss, initQueue } from "./index";
+import { getBoss, initQueue } from "./index";
 import type { Job, SendOptions } from "pg-boss";
 
 /**
@@ -32,7 +32,7 @@ export async function sendJob<T extends object = object>(
   opts?: SendOptions,
 ) {
   await initQueue();
-  await boss.send(name, data, opts);
+  await getBoss().send(name, data, opts);
 }
 
 /**
@@ -56,7 +56,7 @@ export function registerWorker<T extends object = object>(
 ) {
   // boss.work with ReqData=T, ResData=void
   // The handler receives an array of jobs; we iterate and call the user handler per-job.
-  boss.work<T, void>(name, async (jobs) => {
+  getBoss().work<T, void>(name, async (jobs) => {
     for (const job of jobs) {
       try {
         await handler(job);
