@@ -50,20 +50,60 @@ SMTP_FROM=noreply@yourapp.com
 | `src/lib/email/send.ts` | Nodemailer SMTP transport |
 | `src/lib/email/templates/` | HTML email layout + magic-link template |
 | `src/app/api/auth/[...all]/route.ts` | Catch-all API route for BetterAuth |
-| `src/app/login/page.tsx` | Centralized login page |
+| `src/app/login/page.tsx` | Sign-in page |
+| `src/app/register/page.tsx` | Registration page |
+| `src/app/auth-form.tsx` | Shared form, parameterised by mode |
+| `src/app/auth-shell.tsx` | Shared split layout for both pages |
 | `src/app/dashboard/` | User dashboard, profile and settings (requires auth) |
 | `src/app/orbit/` | Orbit Admin — users and instance settings (requires admin role) |
 
 ## Auth Flow
 
-### Sign In (Centralized)
+### Sign in and registration
 
-1. User visits `/login`.
+Two pages, one underlying flow:
+
+| | `/login` | `/register` |
+|---|---|---|
+| Framing | "Welcome back" | "Create your account" |
+| Collects | Email | Name and email |
+| Button | "Email me a sign-in link" | "Create account" |
+| Lands on | `/dashboard` | `/dashboard?welcome=1` |
+
+Both send the same magic link. The differences that matter:
+
+- **Registration collects a name**, passed to `signIn.magicLink({ name })`.
+  BetterAuth applies it *only when the account is created*, so registering
+  again with a different name cannot overwrite one the person has since
+  changed on their profile. Verified.
+- **New accounts land on `AFTER_SIGN_UP_URL`** (`/dashboard?welcome=1`), which
+  BetterAuth uses only on the request that creates the account. That is the
+  one reliable first-visit signal, and the dashboard uses it to greet rather
+  than welcome someone "back" to a page they have never seen.
+
+> **Neither page reveals whether an account exists.** Entering an unknown
+> email on `/login` creates an account, and a known one on `/register` simply
+> signs you in. This is deliberate: "that email isn't registered" is account
+> enumeration — it lets anyone test addresses against your user list. The copy
+> on both pages is written to stay truthful under that behaviour, so sign-in
+> never claims the account must already exist.
+
+### The flow
+
+1. User visits `/login` or `/register`.
 2. They enter their email for a **magic link** or click **Google**.
 3. BetterAuth creates/updates the user record in the `users` table.
    All users start with `role = "user"`.
-   A `databaseHooks` entry seeds a display name from the email local-part,
-   since magic-link signups carry no name of their own.
+   When no name was supplied — signing in through `/login` with an address
+   that has no account yet — a `databaseHooks` entry seeds one from the email
+   local-part, so nothing ever renders as "Welcome back, !".
+
+### No email verification step
+
+There isn't one, and there does not need to be. Completing a magic link
+proves control of the inbox, and Google OAuth proves it too — so BetterAuth
+sets `emailVerified` on the account at creation. Adding a separate
+"confirm your email" step would ask the user to prove the same thing twice.
 4. The magic link email is **queued** to pgBoss (not sent inline).
    The worker process sends it via SMTP using Nodemailer, so a slow SMTP
    server never blocks the request handler.

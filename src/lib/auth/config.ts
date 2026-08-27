@@ -19,6 +19,16 @@ export const AFTER_SIGN_IN_URL = "/dashboard";
  */
 export const MAGIC_LINK_EXPIRY_SECONDS = 60 * 10;
 
+/**
+ * Where a brand-new account lands.
+ *
+ * BetterAuth uses this instead of `AFTER_SIGN_IN_URL` only on the request
+ * that creates the account, which is the one reliable signal that this is a
+ * first visit — so the dashboard can greet them rather than welcome them
+ * "back" to somewhere they have never been.
+ */
+export const AFTER_SIGN_UP_URL = "/dashboard?welcome=1";
+
 /** Where a user lands after signing out. */
 export const AFTER_SIGN_OUT_URL = "/login";
 

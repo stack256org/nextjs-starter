@@ -16,6 +16,10 @@ export const metadata: Metadata = { title: "Dashboard · Next.js Starter" };
 
 export const dynamic = "force-dynamic";
 
+interface DashboardPageProps {
+  searchParams: Promise<{ welcome?: string }>;
+}
+
 /**
  * The signed-in home screen.
  *
@@ -27,8 +31,14 @@ export const dynamic = "force-dynamic";
  * Replace the "Start here" section with your product's real content; the
  * account summary above it is worth keeping.
  */
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   const { session, user, isAdmin } = await getViewer();
+
+  // Set by AFTER_SIGN_UP_URL, which BetterAuth uses only on the request that
+  // creates the account.
+  const isNew = (await searchParams).welcome === "1";
 
   const sessions = await auth.api
     .listSessions({ headers: await headers() })
@@ -39,8 +49,16 @@ export default async function DashboardPage() {
   return (
     <Page>
       <PageHeader
-        title={`Welcome back, ${user.name.split(" ")[0]}`}
-        description="Your account at a glance."
+        title={
+          isNew
+            ? `You're all set, ${user.name.split(" ")[0]}`
+            : `Welcome back, ${user.name.split(" ")[0]}`
+        }
+        description={
+          isNew
+            ? "Your account is ready. Here's what it looks like."
+            : "Your account at a glance."
+        }
         meta={
           <>
             <Badge tone={isAdmin ? "primary" : "ghost"}>{user.role}</Badge>

@@ -53,13 +53,20 @@ export default async function Home() {
         <span className="flex-1 font-semibold">Next.js Starter</span>
         <nav aria-label="Main" className="flex items-center gap-1">
           <ThemeToggle />
-          <ButtonLink
-            href={session ? "/dashboard" : "/login"}
-            variant="primary"
-            size="sm"
-          >
-            {session ? "Dashboard" : "Sign in"}
-          </ButtonLink>
+          {session ? (
+            <ButtonLink href="/dashboard" variant="primary" size="sm">
+              Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink href="/login" variant="ghost" size="sm">
+                Sign in
+              </ButtonLink>
+              <ButtonLink href="/register" variant="primary" size="sm">
+                Get started
+              </ButtonLink>
+            </>
+          )}
         </nav>
         </Container>
       </header>
@@ -82,12 +89,15 @@ export default async function Home() {
             </p>
             <div className="flex flex-wrap gap-3">
               <ButtonLink
-                href={session ? "/dashboard" : "/login"}
+                href={session ? "/dashboard" : "/register"}
                 variant="primary"
               >
-                {session ? "Open the dashboard" : "Get started"}
+                {session ? "Open the dashboard" : "Create an account"}
                 <ArrowRightIcon size={16} aria-hidden="true" />
               </ButtonLink>
+              {!session && (
+                <ButtonLink href="/login">I already have one</ButtonLink>
+              )}
             </div>
           </div>
         </section>
@@ -123,6 +133,9 @@ export default async function Home() {
           <nav aria-label="Footer" className="flex gap-5">
             <Link href="/login" className="link link-hover">
               Sign in
+            </Link>
+            <Link href="/register" className="link link-hover">
+              Create an account
             </Link>
           </nav>
         </Container>
