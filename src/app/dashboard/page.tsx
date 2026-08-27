@@ -1,59 +1,163 @@
-import { getSession } from "@/lib/auth/helpers";
-import { Button } from "@/components/ui/button";
-import { FileText, Rocket, File } from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { headers } from "next/headers";
+import { getViewer } from "@/lib/auth/helpers";
+import { auth } from "@/lib/auth/server";
+import {
+  UserCircleIcon,
+  GearSixIcon,
+  ShieldCheckIcon,
+  SquaresFourIcon,
+  ArrowRightIcon,
+} from "@phosphor-icons/react/dist/ssr";
+
+export const metadata: Metadata = { title: "Dashboard · Next.js Starter" };
 
 export default async function DashboardPage() {
-  const session = await getSession({ requireAuth: true });
-  if (!session) return null;
+  const { user, isAdmin } = await getViewer();
+
+  const sessionCount = await auth.api
+    .listSessions({ headers: await headers() })
+    .then((s) => s.length)
+    .catch(() => null);
+
+  const shortcuts = [
+    {
+      href: "/dashboard/profile",
+      title: "Profile",
+      description: "Your display name and avatar.",
+      icon: UserCircleIcon,
+    },
+    {
+      href: "/dashboard/settings",
+      title: "Settings",
+      description:
+        sessionCount === null
+          ? "Theme and account security."
+          : `Theme, plus ${sessionCount} active session${sessionCount === 1 ? "" : "s"}.`,
+      icon: GearSixIcon,
+    },
+    {
+      href: "/ui",
+      title: "Components",
+      description: "Every shared component, documented.",
+      icon: SquaresFourIcon,
+    },
+    ...(isAdmin
+      ? [
+          {
+            href: "/orbit",
+            title: "Orbit Admin",
+            description: "Users, roles and the job queues.",
+            icon: ShieldCheckIcon,
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="flex flex-col gap-10">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Welcome back, {user.name.split(" ")[0]}
+        </h1>
+        <p className="mt-1.5 text-sm text-base-content/70">
+          Signed in as {user.email}.
+        </p>
+      </header>
 
-      <div className="card bg-base-200 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">
-            Welcome back, {session.user.name}! 👋
-          </h2>
-          <p className="opacity-70">
-            This is your personal dashboard. From here you can manage
-            your account, view your posts, and more.
-          </p>
+      {/* Rules rather than cards — nothing here needs elevation. */}
+      <section>
+        <h2 className="mb-1 text-sm tracking-wide text-base-content/50 uppercase">
+          Your account
+        </h2>
+        <ul className="divide-y divide-base-300 border-y border-base-300">
+          {shortcuts.map(({ href, title, description, icon: CardIcon }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="group flex items-center gap-4 py-4 transition-colors hover:bg-base-200/60"
+              >
+                <CardIcon
+                  size={20}
+                  className="shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium">{title}</span>
+                  <span className="block text-sm text-base-content/70">
+                    {description}
+                  </span>
+                </span>
+                <ArrowRightIcon
+                  size={16}
+                  className="shrink-0 text-base-content/30 transition-transform group-hover:translate-x-0.5 group-hover:text-base-content/60"
+                  aria-hidden="true"
+                />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-          <div className="card-actions justify-end">
-            <Button variant="primary">Get Started</Button>
+      <section className="max-w-[68ch]">
+        <h2 className="mb-1 text-sm tracking-wide text-base-content/50 uppercase">
+          Build from here
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-base-content/70">
+          This starter ships auth, a database layer, a job queue and a themed
+          component set — but no product. Replace this page with whatever
+          you&apos;re building.
+        </p>
+        <dl className="mt-5 flex flex-col gap-4 text-sm">
+          <div>
+            <dt className="font-medium">Add a table</dt>
+            <dd className="mt-0.5 text-base-content/70">
+              Edit{" "}
+              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+                src/lib/db/schema.ts
+              </code>
+              , then run{" "}
+              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+                pnpm db:generate
+              </code>{" "}
+              and{" "}
+              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+                pnpm db:migrate
+              </code>
+              .
+            </dd>
           </div>
-        </div>
-      </div>
-
-      <div className="stats stats-vertical lg:stats-horizontal w-full gap-4">
-        <div className="stat bg-base-200 rounded-box shadow">
-          <div className="stat-figure text-primary">
-            <FileText size={32} />
+          <div>
+            <dt className="font-medium">Add a background job</dt>
+            <dd className="mt-0.5 text-base-content/70">
+              Name it in{" "}
+              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+                src/lib/queue/jobs.ts
+              </code>{" "}
+              and handle it in{" "}
+              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+                worker.ts
+              </code>
+              .
+            </dd>
           </div>
-          <div className="stat-title">Posts</div>
-          <div className="stat-value text-primary">0</div>
-          <div className="stat-desc">Total posts</div>
-        </div>
-
-        <div className="stat bg-base-200 rounded-box shadow">
-          <div className="stat-figure text-secondary">
-            <Rocket size={32} />
+          <div>
+            <dt className="font-medium">Build a screen</dt>
+            <dd className="mt-0.5 text-base-content/70">
+              Import from{" "}
+              <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+                @/components/ui
+              </code>{" "}
+              — see the{" "}
+              <Link href="/ui" className="link">
+                component reference
+              </Link>
+              .
+            </dd>
           </div>
-          <div className="stat-title">Published</div>
-          <div className="stat-value text-secondary">0</div>
-          <div className="stat-desc">Published posts</div>
-        </div>
-
-        <div className="stat bg-base-200 rounded-box shadow">
-          <div className="stat-figure text-accent">
-            <File size={32} />
-          </div>
-          <div className="stat-title">Drafts</div>
-          <div className="stat-value text-accent">0</div>
-          <div className="stat-desc">Unpublished posts</div>
-        </div>
-      </div>
+        </dl>
+      </section>
     </div>
   );
 }

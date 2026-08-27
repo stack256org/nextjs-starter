@@ -2,31 +2,32 @@
 
 ## Overview
 
-The project uses [pgBoss](https://github.com/tiangolo/pg-boss) for background
-job processing. pgBoss stores its job queue tables inside your existing
-PostgreSQL database, so no separate queue broker (Redis, RabbitMQ, etc.) is
-needed.
+[pgBoss](https://pgboss.io/) handles background jobs. It stores its queue
+tables inside your existing PostgreSQL database, so there's no separate broker
+(Redis, RabbitMQ) to run.
 
-## pnpm Script
+## Running it
 
 ```bash
-pnpm worker          # Start the pgBoss worker process
+pnpm dev       # web server AND worker together (development)
+pnpm worker    # worker only
 ```
 
-Run this as a **separate process** alongside your Next.js app — for example,
-in a second terminal during development or as a second container/process in
-production (Docker Compose, Kubernetes, etc.).
+In development `pnpm dev` runs both under `concurrently`, so you do **not**
+need a second terminal. In production, run `pnpm worker` as its own process
+(a second container, a Procfile entry, a systemd unit).
+
+If magic-link emails never arrive, check the worker is running first —
+`/orbit/settings` shows live queue depths, and a growing `queued` count with
+zero `active` means nothing is consuming the queue.
 
 ## Job System
 
 ### Job Types
 
-Defined in `src/lib/queue/jobs.ts`:
-
 | Job type | Handler | Description |
 |---|---|---|
 | `send-email` | `handleSendEmail` | Sends an email via SMTP (Nodemailer) — used for magic links |
-| `process-post` | `handleProcessPost` | Increments a post's view count |
 
 ### Sending Jobs
 
@@ -36,31 +37,45 @@ import { sendJob } from "@/lib/queue/jobs";
 await sendJob("send-email", {
   to: "user@example.com",
   subject: "Welcome!",
-  html: "<p>Thanks for joining...</p>",
-  text: "Thanks for joining...",
+  html: "<p>Thanks for joining…</p>",
+  text: "Thanks for joining…",
 });
 ```
 
-### Registering Handlers
+`sendJob` initialises the queue lazily, so it is safe to call from a Route
+Handler, a Server Action, or a BetterAuth callback without pre-starting pgBoss.
 
-Handlers live in `src/lib/queue/worker.ts`. Add new job types by:
+### Adding a job type
 
-1. Adding the type to `JobType` in `src/lib/queue/jobs.ts`
-2. Writing the handler function in `worker.ts`
-3. Calling `registerWorker("job-type", handlerFn)` inside `startWorker()`
+1. Add the name to `JobType` in `src/lib/queue/jobs.ts`.
+2. Add the same name to `QUEUE_NAMES` in `src/lib/queue/index.ts` — the queue
+   must exist before anything sends to it, and the web server creates queues
+   without registering handlers.
+3. Write the handler in `src/lib/queue/worker.ts`.
+4. `await registerWorker("your-job", handler)` inside `startWorker()`.
+
+### Errors and retries
+
+A handler that throws propagates the error so pgBoss can apply its retry
+policy. `registerWorker` awaits `boss.work()`, so a failed registration
+surfaces at startup rather than becoming an unhandled rejection.
 
 ### Graceful Shutdown
 
-The worker listens for `SIGINT` and `SIGTERM`, calling `closeQueue()` to
-drain in-flight jobs before exiting.
+The worker traps `SIGINT` and `SIGTERM` and calls `closeQueue()` to drain
+in-flight jobs before exiting. The handler is idempotent, so a double Ctrl-C
+won't start two shutdowns.
 
 ## Environment Variables
 
 | Variable | Description |
 |---|---|
-| `PGBOSS_DATABASE_URL` | PostgreSQL connection for the queue. Falls back to `DATABASE_URL` if not set. |
-| `SMTP_HOST` | SMTP server hostname (e.g. `localhost` for Mailpit) |
-| `SMTP_PORT` | SMTP server port (e.g. `1025` for Mailpit) |
-| `SMTP_USER` | SMTP authentication username (optional for Mailpit) |
-| `SMTP_PASS` | SMTP authentication password (optional for Mailpit) |
-| `SMTP_FROM` | Default sender email address |
+| `PGBOSS_DATABASE_URL` | Queue connection. Falls back to `DATABASE_URL`. |
+| `SMTP_HOST` | SMTP hostname (`localhost` for Mailpit) |
+| `SMTP_PORT` | SMTP port (`1025` for Mailpit) |
+| `SMTP_USER` | SMTP username |
+| `SMTP_PASS` | SMTP password |
+| `SMTP_FROM` | Default sender address |
+
+`src/lib/email/send.ts` throws if `SMTP_HOST`, `SMTP_USER` or `SMTP_PASS` is
+missing — the job fails loudly instead of silently dropping the email.

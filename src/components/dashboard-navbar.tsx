@@ -1,12 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth/client";
-import { Avatar } from "@/components/ui/avatar";
-import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
+import { AFTER_SIGN_OUT_URL } from "@/lib/auth/config";
+import { Avatar } from "@/components/ui";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownSeparator,
+  DropdownHeader,
+} from "@/components/ui/dropdown";
 
 interface DashboardNavbarProps {
   user: {
@@ -18,10 +23,7 @@ interface DashboardNavbarProps {
   };
 }
 
-const navItems = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Posts", href: "/dashboard/posts" },
-];
+const navItems = [{ label: "Dashboard", href: "/dashboard" }];
 
 export function DashboardNavbar({ user }: DashboardNavbarProps) {
   const pathname = usePathname();
@@ -30,56 +32,59 @@ export function DashboardNavbar({ user }: DashboardNavbarProps) {
 
   async function handleSignOut() {
     await authClient.signOut();
-    router.push("/login");
+    router.push(AFTER_SIGN_OUT_URL);
+    router.refresh();
   }
 
   return (
-    <div className="navbar bg-base-100 shadow-sm border-b px-4 h-16">
-      {/* ── Left: brand + nav ── */}
-      <div className="flex-1 px-2 mx-2 text-lg font-semibold">
-        <Link href="/dashboard">Next.js Starter</Link>
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-base-300 bg-base-100/95 px-4 backdrop-blur sm:px-6">
+      <div className="flex flex-1 items-center gap-6">
+        <Link href="/dashboard" className="font-semibold">
+          Next.js Starter
+        </Link>
+
+        <nav aria-label="Main" className="hidden gap-1 sm:flex">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={pathname === item.href ? "page" : undefined}
+              className={`btn btn-ghost btn-sm ${
+                pathname === item.href ? "btn-active" : ""
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
-      <div className="flex-none hidden sm:flex gap-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`btn btn-ghost btn-sm ${
-              pathname === item.href ? "btn-active" : ""
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
-
-        {/* Admin link shown only to admins */}
-        {isUserAdmin && (
-          <Link
-            href="/orbit"
-            className="btn btn-ghost btn-sm"
-          >
-            Orbit Admin
-          </Link>
-        )}
-      </div>
-
-      {/* ── Right: theme + user menu ── */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <ThemeToggle />
 
+        {/* Orbit Admin is reachable only from this menu — it is not a primary
+            destination and does not belong in the main nav. */}
         <Dropdown
-          placement="bottom-end"
+          label="Account menu"
           trigger={
-            <Avatar src={user.image} name={user.name ?? user.email} size="md" />
+            <Avatar src={user.image} name={user.name} size="md" shape="squircle" />
           }
         >
+          <DropdownHeader>{user.email}</DropdownHeader>
           <DropdownItem href="/dashboard/profile">Profile</DropdownItem>
           <DropdownItem href="/dashboard/settings">Settings</DropdownItem>
+          {isUserAdmin && (
+            <>
+              <DropdownSeparator />
+              <DropdownItem href="/orbit">Orbit Admin</DropdownItem>
+            </>
+          )}
           <DropdownSeparator />
-          <DropdownItem onClick={handleSignOut}>Sign out</DropdownItem>
+          <DropdownItem onClick={handleSignOut} destructive>
+            Sign out
+          </DropdownItem>
         </Dropdown>
       </div>
-    </div>
+    </header>
   );
 }

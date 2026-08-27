@@ -70,7 +70,7 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions) {
     text,
   });
 
-  console.log(`📧 Email sent to ${to}`);
+  console.log(`Email sent to ${to}`);
   console.log(`   MessageId: ${info.messageId}`);
 
   return info;

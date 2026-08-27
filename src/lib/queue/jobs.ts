@@ -3,9 +3,11 @@ import type { Job, SendOptions } from "pg-boss";
 
 /**
  * Job type definitions for the pgBoss queue.
- * Add new job types here as your application grows.
+ * Add new job types here as your application grows — the name must also be
+ * registered in `QUEUE_NAMES` (src/lib/queue/index.ts) so the queue exists
+ * before anything tries to send to it.
  */
-export type JobType = "send-email" | "process-post";
+export type JobType = "send-email";
 
 /** A handler function that processes a single queued job. */
 export type JobHandler<T extends object = object> = (
@@ -15,16 +17,12 @@ export type JobHandler<T extends object = object> = (
 /**
  * Send a job to the pgBoss queue.
  *
- * The queue is lazily initialized on first use, so this can be
- * called from any server-side context (API routes, BetterAuth
- * callbacks, etc.) without pre-starting pgBoss.
+ * The queue is lazily initialized on first use, so this can be called from
+ * any server-side context (Route Handlers, Server Actions, BetterAuth
+ * callbacks) without pre-starting pgBoss.
  *
  * @example
  *   await sendJob("send-email", { to: "user@example.com", subject: "Welcome!" });
- *
- * @param name   - Job type (queue name)
- * @param data   - Payload to pass to the job handler (must be an object)
- * @param opts   - Optional scheduling/retention options
  */
 export async function sendJob<T extends object = object>(
   name: JobType,
@@ -38,33 +36,28 @@ export async function sendJob<T extends object = object>(
 /**
  * Register a job handler with the pgBoss worker.
  *
- * When a job of this type is dequeued, the handler is called with each job.
- * If the handler throws, pgBoss will automatically retry based on `retryLimit`.
- *
- * @example
- *   registerWorker("send-email", async (job) => {
- *     const { userId, subject } = job.data;
- *     await emailService.send(userId, subject);
- *   });
- *
- * @param name     - Job type (queue name)
- * @param handler  - Function called when one or more jobs are dequeued
+ * pgBoss hands the callback a *batch* of jobs; we unwrap it so each handler
+ * deals with a single job.  If the handler throws, the error propagates so
+ * pgBoss can apply its retry policy.
  */
-export function registerWorker<T extends object = object>(
+export async function registerWorker<T extends object = object>(
   name: JobType,
   handler: JobHandler<T>,
 ) {
-  // boss.work with ReqData=T, ResData=void
-  // The handler receives an array of jobs; we iterate and call the user handler per-job.
-  getBoss().work<T, void>(name, async (jobs) => {
+  // `boss.work()` is async — awaiting it means a failed registration surfaces
+  // at startup instead of becoming an unhandled rejection.
+  await getBoss().work<T, void>(name, async (jobs) => {
+    // Deliberately sequential: a batch is processed one job at a time so a
+    // failure stops the batch instead of racing the rest through.
     for (const job of jobs) {
       try {
+        // oxlint-disable-next-line no-await-in-loop
         await handler(job);
       } catch (err) {
-        console.error(`❌ Job "${name}" failed:`, err);
+        console.error(`Job "${name}" failed:`, err);
         throw err; // Let pgBoss handle retries
       }
     }
   });
-  console.log(`✅ Worker registered for job type: "${name}"`);
+  console.log(`Worker registered for job type: "${name}"`);
 }

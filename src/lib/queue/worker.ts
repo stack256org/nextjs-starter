@@ -1,15 +1,12 @@
 import { initQueue, closeQueue } from "./index";
 import { registerWorker } from "./jobs";
 import { sendEmail } from "@/lib/email/send";
-import { db } from "@/lib/db";
-import { posts } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import type { Job } from "pg-boss";
 
 /**
- * Job handlers — define the business logic for each job type here.
- * Each handler receives a single pgBoss Job whose `data` field
- * contains the payload sent via `sendJob`.
+ * Job handlers — the business logic for each job type lives here.
+ * Each handler receives a single pgBoss Job whose `data` field holds the
+ * payload passed to `sendJob`.
  */
 
 interface SendEmailData {
@@ -20,75 +17,43 @@ interface SendEmailData {
 }
 
 /**
- * Sends an email via SMTP (Nodemailer) using credentials from
- * environment variables.  This runs in the **worker process**,
- * so slow SMTP operations never block the web server.
- *
- * The job payload includes `to`, `subject`, `html`, and optionally
- * `text`.  The SMTP transport is configured in `src/lib/email/send.ts`.
+ * Sends an email via SMTP (Nodemailer) using credentials from environment
+ * variables.  This runs in the **worker process**, so slow SMTP calls never
+ * block the web server.  The transport is configured in `src/lib/email/send.ts`.
  */
 async function handleSendEmail(job: Job<SendEmailData>) {
   const { to, subject, html, text } = job.data;
-
-  await sendEmail({
-    to,
-    subject,
-    html,
-    text,
-  });
-
-  console.log(`✅ Email queued and sent to ${to} (subject: ${subject})`);
-}
-
-/** Recalculates a post's view count (example background processing). */
-async function handleProcessPost(job: Job<{ postId: string }>) {
-  const { postId } = job.data;
-
-  const [post] = await db.select().from(posts).where(eq(posts.id, postId));
-
-  if (!post) {
-    console.warn(`⚠️ Post ${postId} not found`);
-    return;
-  }
-
-  // Simulate some background work
-  const updatedViews = post.viewCount + 1;
-  await db
-    .update(posts)
-    .set({ viewCount: updatedViews })
-    .where(eq(posts.id, postId));
-
-  console.log(`📊 Updated post "${post.title}" view count to ${updatedViews}`);
+  await sendEmail({ to, subject, html, text });
 }
 
 /**
  * Start the pgBoss worker process.
  *
- * This sets up all job handlers and keeps the process alive.
- * Run it as a separate process alongside your Next.js app:
- *
- *   pnpm worker
- *
- * In production (e.g. Docker), run the compiled version:
- *   node src/lib/queue/worker.cli.js
+ * Registers every job handler and keeps the process alive.  Run it alongside
+ * the Next.js app — `pnpm dev` starts both; in production run `pnpm worker`
+ * as its own process.
  */
 export async function startWorker() {
-  console.log("🚀 Starting pgBoss worker...");
+  console.log("Starting pgBoss worker...");
   await initQueue();
 
   // Register all job handlers
-  registerWorker("send-email", handleSendEmail);
-  registerWorker("process-post", handleProcessPost);
+  await registerWorker("send-email", handleSendEmail);
 
-  console.log("📋 pgBoss worker is running. Press Ctrl+C to stop.");
+  console.log("pgBoss worker is running. Press Ctrl+C to stop.");
 
   // Graceful shutdown
+  let shuttingDown = false;
   const shutdown = async (signal: string) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     console.log(`\n${signal} received, shutting down worker...`);
-    await closeQueue();
+    await closeQueue().catch((err) =>
+      console.error("Error stopping queue:", err),
+    );
     process.exit(0);
   };
 
-  process.on("SIGINT", () => shutdown("SIGINT"));
-  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
 }

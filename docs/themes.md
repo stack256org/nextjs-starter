@@ -2,58 +2,88 @@
 
 ## Overview
 
-The project uses two libraries working together:
+Two libraries work together:
 
-- **[next-themes](https://github.com/pacocoursehan/next-themes)** — manages the
-  active theme, persists the user's choice in `localStorage`, and follows the
-  OS `prefers-color-scheme` by default.
-- **[DaisyUI v5](https://daisyui.com/)** — provides the actual CSS theme
-  variables, swapped via the `data-theme` attribute on `<html>`.
+- **[next-themes](https://github.com/pacocourse/next-themes)** — tracks the
+  active theme, persists the choice in `localStorage`, and follows the OS
+  `prefers-color-scheme` by default.
+- **[DaisyUI v5](https://daisyui.com/)** — supplies the CSS variables, swapped
+  via the `data-theme` attribute.
 
-Together they set **both** the `class` attribute (for Tailwind's `dark:`
-variant) and the `data-theme` attribute (for DaisyUI's CSS variables) on the
-`<html>` element.
+`src/components/theme-provider.tsx` sets **both** attributes on `<html>`:
+`class` (for Tailwind's `dark:` variant) and `data-theme` (for DaisyUI).
 
-## How It Works
+## Registered themes
 
-1. **`src/components/theme-provider.tsx`** wraps the app with
-   `next-themes`. On first load it follows the system preference
-   (`defaultTheme="system"`). It injects an inline script that sets the
-   theme attributes *before* the first client paint — preventing a flash of
-   wrong theme (FOUC).
-
-2. **`src/components/theme-toggle.tsx`** is a button that uses Phosphor Icons
-   (`Sun` / `Moon`) to toggle between light and dark. Clicking it calls
-   `setTheme(isDark ? "light" : "dark")`, and `next-themes` persists the
-   choice.
-
-## DaisyUI Themes
-
-Six themes are configured in `src/app/globals.css`:
+Configured in the `@plugin "daisyui"` block of `src/app/globals.css`:
 
 | Theme | Flag | Notes |
 |---|---|---|
-| `light` | `--default` | Default theme |
-| `dark` | `--prefersdark` | Used when the system prefers dark mode |
+| `light` | `--default` | Default |
+| `dark` | `--prefersdark` | Used when the system prefers dark |
 | `cupcake` | | Pastel, rounded |
 | `synthwave` | | Retro neon |
-| `valentines` | | Pink/red |
+| `valentine` | | Pink/red — note the name is singular |
 | `emerald` | | Green |
+| `dim` | | Muted dark |
 
-To switch to a non-light/dark theme globally, set `data-theme` on the `<html>`
-element in `src/app/layout.tsx`. To switch at runtime, call
-`document.documentElement.setAttribute("data-theme", "cupcake")`.
+A name that isn't in this block produces **no CSS at all** and silently falls
+back to the default theme. DaisyUI does not warn about it.
+
+## Adding a theme
+
+1. Add the name to the `@plugin "daisyui"` block in `src/app/globals.css`.
+2. Add it to `THEME_OPTIONS` in
+   `src/app/dashboard/settings/theme-picker.tsx` so users can select it.
+
+## ⚠️ Never hard-code `data-theme` on a wrapper
+
+DaisyUI resolves theme variables from the **nearest ancestor** carrying
+`data-theme`. Putting a fixed value on a layout wrapper:
+
+```tsx
+// Don't do this — it breaks the theme toggle for this whole subtree.
+<div className="min-h-screen" data-theme="dim">
+```
+
+...overrides whatever `next-themes` wrote on `<html>`. The toggle still fires
+and still updates `localStorage`, but nothing inside that subtree changes, so
+it reads as a broken toggle. This is exactly what happened to `/orbit`.
+
+Give a section its own identity with accent colours, borders and layout — all
+of which follow the active theme — rather than by pinning one.
+
+## Hydration
+
+The active theme is only knowable in the browser, so the server cannot render
+the correct state for anything that depends on it. Rendering a guess produces
+a React hydration mismatch.
+
+`suppressHydrationWarning` is **not** a general fix: it only covers an
+element's own attributes and text, not its children. Putting it on a `<button>`
+does nothing for the `<path d="…">` inside the icon it renders.
+
+Use `useHydrated()` from `src/lib/hooks/use-hydrated.ts` instead — it returns
+`false` on the server and the first client render, then `true`:
+
+```tsx
+const hydrated = useHydrated();
+if (!hydrated) return <Placeholder />;
+```
+
+`src/components/theme-toggle.tsx` and the settings theme picker both use it.
 
 ## Phosphor Icons
 
-The theme toggle uses [`@phosphor-icons/react`](https://phosphoricons.com/) —
-a flexible icon toolkit with multiple weights. The **SSR** variant is imported
-(`@phosphor-icons/react/dist/ssr`) so icons render correctly during
-server-side rendering without hydration mismatches.
-
-Available icon sets: `Sun`, `Moon`, `Sun` + `Moon` pair, and hundreds more.
-Import from the SSR entry:
+The SSR entry point renders icons as plain markup during server rendering:
 
 ```ts
-import { Sun, Moon } from "@phosphor-icons/react/dist/ssr";
+import { SunIcon, MoonIcon } from "@phosphor-icons/react/dist/ssr";
 ```
+
+Use the `*Icon` names. The bare names (`Sun`, `Moon`, `X`, `Warning`) still
+exist but are deprecated aliases.
+
+Note that the SSR entry does not prevent hydration mismatches on its own — if
+*which* icon you render depends on client-only state, gate it with
+`useHydrated()` as above.

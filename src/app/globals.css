@@ -1,71 +1,196 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
- * DaisyUI theme plugin
+ * DaisyUI
  *
- * - `light --default`      — light theme is the default
- * - `dark --prefersdark`   — dark theme is used when the system prefers dark
- * - cupcake, synthwave, valentines, emerald — additional themes you can
- *   switch to with data-theme="..."
+ * `@plugin "daisyui"` enables the built-in themes users can pick from in
+ * /dashboard/settings. `@plugin "daisyui/theme"` below overrides `light` and
+ * `dark` with this project's palette.
  *
- * The `next-themes` library (see src/components/theme-provider.tsx) syncs the
- * user's choice — respecting system preference until they pick one — to both
- * the `class` attribute (Tailwind dark: variant) and the `data-theme` attribute
- * (DaisyUI CSS variables) on the <html> element.
+ * Keep this list in sync with THEME_OPTIONS in
+ * src/app/dashboard/settings/theme-picker.tsx — a theme that is registered in
+ * one place but not the other either produces no CSS or is unreachable.
  * ------------------------------------------------------------------------- */
 @plugin "daisyui" {
-  themes: light --default, dark --prefersdark, cupcake, synthwave, valentines, emerald, dim;
+  themes: cupcake, synthwave, valentine, emerald, dim;
 }
 
+/* ---------------------------------------------------------------------------
+ * Light theme
+ *
+ * DaisyUI's stock `light` theme ships a heavily saturated indigo primary
+ * (oklch(45% 0.24 277)). We replace it with a single desaturated jade accent
+ * on a consistently cool-neutral base: one accent, one gray family, chroma
+ * kept well under 0.2 so it sits beside the neutrals instead of shouting.
+ *
+ * Only override tokens deliberately — anything omitted inherits DaisyUI's
+ * default, which is what you want for the semantic colours.
+ * ------------------------------------------------------------------------- */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Surfaces — cool neutral, never pure white on the page body */
+  --color-base-100: oklch(99% 0.002 250);
+  --color-base-200: oklch(96.5% 0.003 250);
+  --color-base-300: oklch(92.5% 0.005 250);
+  --color-base-content: oklch(22% 0.012 255);
+
+  /* The single accent */
+  --color-primary: oklch(52% 0.108 178);
+  --color-primary-content: oklch(98% 0.012 178);
+
+  /* Secondary and accent are muted relatives of the base, not rival accents */
+  --color-secondary: oklch(45% 0.028 255);
+  --color-secondary-content: oklch(98% 0.002 250);
+  --color-accent: oklch(62% 0.094 205);
+  --color-accent-content: oklch(20% 0.03 205);
+
+  --color-neutral: oklch(26% 0.014 255);
+  --color-neutral-content: oklch(96% 0.002 250);
+
+  /* Status colours — desaturated to match the palette, still unambiguous */
+  --color-info: oklch(58% 0.108 235);
+  --color-info-content: oklch(98% 0.012 235);
+  --color-success: oklch(56% 0.108 150);
+  --color-success-content: oklch(98% 0.012 150);
+  --color-warning: oklch(70% 0.135 75);
+  --color-warning-content: oklch(22% 0.04 75);
+  --color-error: oklch(56% 0.176 22);
+  --color-error-content: oklch(98% 0.012 22);
+
+  /* Radii — tighter on controls, softer on containers, per the design audit */
+  --radius-selector: 0.375rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Dark theme
+ *
+ * Off-black, never #000. Same jade accent, lifted for contrast against the
+ * darker surfaces.
+ * ------------------------------------------------------------------------- */
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: oklch(19% 0.008 255);
+  --color-base-200: oklch(23% 0.009 255);
+  --color-base-300: oklch(28% 0.011 255);
+  --color-base-content: oklch(93% 0.005 250);
+
+  --color-primary: oklch(72% 0.114 178);
+  --color-primary-content: oklch(18% 0.035 178);
+
+  --color-secondary: oklch(72% 0.024 255);
+  --color-secondary-content: oklch(18% 0.008 255);
+  --color-accent: oklch(74% 0.096 205);
+  --color-accent-content: oklch(18% 0.03 205);
+
+  --color-neutral: oklch(30% 0.012 255);
+  --color-neutral-content: oklch(93% 0.005 250);
+
+  --color-info: oklch(72% 0.116 235);
+  --color-info-content: oklch(18% 0.035 235);
+  --color-success: oklch(72% 0.126 150);
+  --color-success-content: oklch(18% 0.035 150);
+  --color-warning: oklch(78% 0.135 75);
+  --color-warning-content: oklch(20% 0.04 75);
+  --color-error: oklch(68% 0.166 22);
+  --color-error-content: oklch(18% 0.04 22);
+
+  --radius-selector: 0.375rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.875rem;
+
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Typography
+ * ------------------------------------------------------------------------- */
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/* Body styles — using DaisyUI's base variables so every theme paints
-   consistently without manual background/foreground overrides. */
 body {
   background: var(--color-base-100);
   color: var(--color-base-content);
   font-family: var(--font-sans);
   margin: 0;
+  /* Avoids single-word orphans on headings and short paragraphs. */
+  text-wrap: pretty;
 }
 
-/* Smooth transition when switching themes */
-@media (prefers-reduced-motion: no-preference) {
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  letter-spacing: -0.015em;
+}
+
+/* Numbers in tables and metrics line up column-to-column. */
+.tabular,
+table td,
+.stat-value {
+  font-variant-numeric: tabular-nums;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
   html {
-    transition-property: background-color, color, border-color;
-    transition-duration: 150ms;
-    transition-timing-function: ease;
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-/* Remove focus outlines (rings/borders) on interactive elements.
-   Keeps the base border intact — only the focus ring is removed.
-   Uses @utility so Tailwind purges and applies it correctly. */
-@utility focus-outline-none {
-  &:focus,
-  &:focus-visible {
-    outline: 0;
-    outline-offset: 0;
-  }
+/* ---------------------------------------------------------------------------
+ * Focus
+ *
+ * `:focus-visible` only — the browser applies it for keyboard navigation but
+ * not for mouse clicks, so the ring never appears on a plain click while
+ * remaining available to keyboard users. Removing focus styling outright
+ * (as this file previously did for every input, button and link) makes the
+ * app unnavigable without a mouse.
+ * ------------------------------------------------------------------------- */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-field);
 }
 
-input:focus,
-select:focus,
-textarea:focus,
-button:focus,
-a:focus {
-  outline: 0;
-  outline-offset: 0;
+/* Skip link — visible only once focused. */
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 100;
+  translate: 0 -200%;
+  transition: translate 150ms ease;
 }
 
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-button:focus-visible,
-a:focus-visible {
-  outline: 0;
-  outline-offset: 0;
-  box-shadow: none;
+.skip-link:focus-visible {
+  translate: 0 0;
 }

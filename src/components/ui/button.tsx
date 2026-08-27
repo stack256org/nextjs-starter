@@ -1,6 +1,10 @@
-import { type ButtonHTMLAttributes, type ReactNode } from "react";
+"use client";
 
-type ButtonVariant =
+import { Button as HuiButton, type ButtonProps as HuiButtonProps } from "@headlessui/react";
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+export type ButtonVariant =
   | "primary"
   | "secondary"
   | "accent"
@@ -10,52 +14,129 @@ type ButtonVariant =
   | "warning"
   | "error"
   | "ghost"
+  | "link"
   | "outline"
   | "dash"
   | "soft";
 
-type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
+export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface CommonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  children: ReactNode;
   active?: boolean;
+  block?: boolean;
+  /** Shows a spinner and blocks interaction. */
+  loading?: boolean;
+  children: ReactNode;
+  className?: string;
+}
+
+export interface ButtonProps
+  extends CommonProps,
+    Omit<HuiButtonProps, "className" | "children"> {
+  href?: never;
+}
+
+export interface ButtonLinkProps extends CommonProps {
+  href: string;
+  disabled?: boolean;
+}
+
+function classesFor({
+  variant,
+  size,
+  active,
+  block,
+  className = "",
+}: CommonProps) {
+  return [
+    "btn",
+    variant ? `btn-${variant}` : "",
+    size ? `btn-${size}` : "",
+    active ? "btn-active" : "",
+    block ? "btn-block" : "",
+    // Tactile press feedback — transform only, so it stays on the compositor.
+    "transition-transform duration-100 active:scale-[0.98]",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 /**
- * A reusable button component styled with DaisyUI classes.
+ * A DaisyUI-styled button built on Headless UI's `Button`.
  *
- * DaisyUI follows the rule of using the default variant unless the user
- * asks for a specific variant/color. So `variant` defaults to `undefined`
- * (plain `btn` class), not `primary`.
+ * `variant` is intentionally optional: DaisyUI's convention is that a plain
+ * `btn` is the default and colour is opt-in, so most buttons on a page should
+ * pass nothing.
  *
  * @example
- *   <Button variant="primary">Save</Button>
- *   <Button variant="ghost" size="sm">Cancel</Button>
- *   <Button active href="/dashboard">Dashboard</Button>
+ *   <Button variant="primary" loading={saving}>Save</Button>
+ *   <ButtonLink href="/dashboard" variant="ghost">Back</ButtonLink>
  */
 export function Button({
   variant,
   size,
   active = false,
+  block = false,
+  loading = false,
   className = "",
   children,
+  disabled,
   ...props
 }: ButtonProps) {
-  const classes = [
-    "btn",
-    variant ? `btn-${variant}` : "",
-    size ? `btn-${size}` : "",
-    active ? "btn-active" : "",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  return (
+    <HuiButton
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      className={classesFor({ variant, size, active, block, className, children })}
+      {...props}
+    >
+      {loading && (
+        <span
+          className="loading loading-spinner loading-xs"
+          aria-hidden="true"
+        />
+      )}
+      {children}
+    </HuiButton>
+  );
+}
+
+/**
+ * The same styling as `Button`, rendered as a Next.js `Link`.
+ *
+ * Navigation must be an anchor: a `<button>` with an onClick router push is
+ * not openable in a new tab and is announced wrongly by screen readers.
+ */
+export function ButtonLink({
+  href,
+  variant,
+  size,
+  active = false,
+  block = false,
+  loading = false,
+  disabled = false,
+  className = "",
+  children,
+}: ButtonLinkProps) {
+  const classes = classesFor({ variant, size, active, block, className, children });
+
+  if (disabled) {
+    return (
+      <span className={`${classes} btn-disabled`} aria-disabled="true">
+        {children}
+      </span>
+    );
+  }
 
   return (
-    <button className={classes} {...props}>
+    <Link href={href} className={classes}>
+      {loading && (
+        <span className="loading loading-spinner loading-xs" aria-hidden="true" />
+      )}
       {children}
-    </button>
+    </Link>
   );
 }

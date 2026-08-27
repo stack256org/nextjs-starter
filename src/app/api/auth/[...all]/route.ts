@@ -1,15 +1,12 @@
+import { toNextJsHandler } from "better-auth/next-js";
 import { auth } from "@/lib/auth/server";
 
 /**
- * Catch-all route handler that delegates every `/api/auth/*`
- * request to BetterAuth's framework-agnostic `auth.handler()`.
+ * Catch-all route handler that delegates every `/api/auth/*` request to
+ * BetterAuth.
  *
- * BetterAuth takes care of parsing the body, validating the
- * request, running the appropriate handler, and setting
- * cookies via `nextCookies()`.
+ * `toNextJsHandler` is BetterAuth's own Next.js adapter — it exports the
+ * correct GET/POST pair rather than re-exporting one function under every
+ * HTTP verb, and it keeps cookie forwarding consistent with `nextCookies()`.
  */
-export async function GET(request: Request) {
-  return auth.handler(request);
-}
-
-export { GET as POST, GET as PUT, GET as PATCH, GET as DELETE };
+export const { GET, POST } = toNextJsHandler(auth.handler);

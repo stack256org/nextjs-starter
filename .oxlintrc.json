@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "nextjs", "jsx-a11y", "import"],
+  "env": { "browser": true, "es2024": true, "node": true },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-unused-vars": "error",
+    "typescript/no-explicit-any": "error",
+
+    // Next.js compiles with the automatic JSX runtime (tsconfig
+    // `"jsx": "react-jsx"`), so React does not need to be imported to use JSX.
+    "react/react-in-jsx-scope": "off",
+    // Side-effect imports are load-bearing here: `./globals.css` in the root
+    // layout and `@/lib/env/load` at the top of every CLI entry point.
+    "import/no-unassigned-import": "off"
+  },
+  "ignorePatterns": [
+    "node_modules",
+    ".next",
+    "next-env.d.ts",
+    "src/lib/db/migrations"
+  ]
+}

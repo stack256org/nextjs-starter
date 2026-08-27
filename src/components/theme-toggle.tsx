@@ -1,40 +1,56 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Sun, Moon } from "@phosphor-icons/react/dist/ssr";
+import { useHydrated } from "@/lib/hooks/use-hydrated";
+import { MoonIcon, SunIcon } from "@phosphor-icons/react/dist/ssr";
 
 /**
  * A theme toggle that switches between light and dark modes.
  *
- * Reads the active theme from `next-themes`, which in turn reads from:
- *   1. localStorage (the user's saved choice), then
- *   2. system preference (prefers-color-scheme: dark)
+ * The active theme is only knowable in the browser (it comes from
+ * localStorage or `prefers-color-scheme`), so the server has no way to pick
+ * the right icon.  Rendering a guess produces a React hydration mismatch —
+ * and `suppressHydrationWarning` does NOT help here: it only covers an
+ * element's own attributes and text, not the `<path d="...">` inside the
+ * icon's SVG child.
  *
- * Uses Phosphor icons for a crisp, consistent look.
- *
- * `suppressHydrationWarning` is set on the button because
- * `resolvedTheme` is `undefined` on the first server render but
- * resolves on the client (localStorage / system preference).
- * The ThemeProvider in layout already suppresses the `<html>`
- * attribute mismatch; here we suppress the icon mismatch.
+ * So we render a fixed placeholder until hydration completes, then swap in the
+ * real icon.  Server and client agree on the first paint, and the button keeps its
+ * exact size so nothing shifts.
  */
 export function ThemeToggle() {
+  const hydrated = useHydrated();
   const { resolvedTheme, setTheme } = useTheme();
+
   const isDark = resolvedTheme === "dark";
+  const label = isDark ? "Switch to light mode" : "Switch to dark mode";
+
+  if (!hydrated) {
+    return (
+      <button
+        type="button"
+        className="btn btn-ghost btn-circle"
+        aria-label="Toggle theme"
+        // Disabled until the theme is known so a click can't set the wrong one.
+        disabled
+      >
+        <span className="size-5" aria-hidden="true" />
+      </button>
+    );
+  }
 
   return (
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className="btn btn-ghost btn-circle"
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      suppressHydrationWarning
+      aria-label={label}
+      title={label}
     >
       {isDark ? (
-        <Sun key="theme-sun" size={20} weight="regular" aria-hidden="true" />
+        <SunIcon size={20} aria-hidden="true" />
       ) : (
-        <Moon key="theme-moon" size={20} weight="regular" aria-hidden="true" />
+        <MoonIcon size={20} aria-hidden="true" />
       )}
     </button>
   );

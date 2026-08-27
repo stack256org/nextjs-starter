@@ -11,12 +11,17 @@ Uses [BetterAuth](https://better-auth.com) for authentication with:
 
 ```bash
 # Required — generate with: openssl rand -base64 32
+# The app throws on startup if this is unset: without it BetterAuth signs
+# cookies with a random per-process value, silently invalidating every
+# session on restart.
 BETTER_AUTH_SECRET=your-random-secret-here
 
 # Public URL — used by BetterAuth for callback URLs in OAuth
 NEXT_PUBLIC_APP_URL=http://localhost:3003
 
-# Required for Google OAuth — create at console.cloud.google.com
+# Optional. The "Continue with Google" button only renders when BOTH are set —
+# a provider declared with empty credentials logs a warning on every request
+# and produces a button that can never work.
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
@@ -37,16 +42,17 @@ SMTP_FROM=noreply@yourapp.com
 |---|---|
 | `src/lib/auth/server.ts` | BetterAuth server config (Drizzle adapter, plugins) |
 | `src/lib/auth/client.ts` | React client instance (`authClient`) |
-| `src/lib/auth/config.ts` | Client-safe config (`APP_URL`) |
+| `src/lib/auth/config.ts` | Client-safe config (`APP_URL`, redirect targets, `displayName`) |
 | `src/lib/auth/helpers.ts` | Server-side helpers (`getSession`, `isAdmin`, `requireAdmin`) |
-| `src/lib/auth/providers.tsx` | `AuthProvider` context wrapper |
+| `src/lib/auth/actions.ts` | Server Actions — update profile, revoke sessions |
 | `src/lib/auth/send-magic-link-email.ts` | Queues magic link email via pgBoss worker |
 | `src/lib/auth/make-admin.cli.ts` | CLI to promote a user to admin |
 | `src/lib/email/send.ts` | Nodemailer SMTP transport |
+| `src/lib/email/templates/` | HTML email layout + magic-link template |
 | `src/app/api/auth/[...all]/route.ts` | Catch-all API route for BetterAuth |
 | `src/app/login/page.tsx` | Centralized login page |
-| `src/app/dashboard/` | User dashboard (top navbar, requires auth) |
-| `src/app/orbit/` | Orbit Admin (sidebar, dark theme, requires admin role) |
+| `src/app/dashboard/` | User dashboard, profile and settings (requires auth) |
+| `src/app/orbit/` | Orbit Admin — users and instance settings (requires admin role) |
 
 ## Auth Flow
 
@@ -56,9 +62,17 @@ SMTP_FROM=noreply@yourapp.com
 2. They enter their email for a **magic link** or click **Google**.
 3. BetterAuth creates/updates the user record in the `users` table.
    All users start with `role = "user"`.
+   A `databaseHooks` entry seeds a display name from the email local-part,
+   since magic-link signups carry no name of their own.
 4. The magic link email is **queued** to pgBoss (not sent inline).
-   The worker process sends it via SMTP using Nodemailer.
-5. On success, the user is redirected to `/dashboard`.
+   The worker process sends it via SMTP using Nodemailer, so a slow SMTP
+   server never blocks the request handler.
+5. Clicking the link returns the user to `/dashboard`.
+
+   This comes from the explicit `callbackURL` passed in
+   `src/app/login/login-form.tsx`. Omit it and BetterAuth falls back to `/`,
+   dropping the user on the public landing page — which is indistinguishable
+   from a login that failed.
 
 ### Promoting Users to Admin
 
@@ -86,10 +100,21 @@ Admins see an **Orbit Admin** link in the dashboard navbar.
 
 1. Admin goes to `/orbit/users`.
 2. Clicks **"Impersonate"** on any non-admin user.
-3. BetterAuth creates a new session as that user, storing the admin's
-   session token in a `admin_session` cookie.
-4. The UI shows a **warning badge** and a **"Stop impersonating"**
-   button in the topbar.
-5. Clicking "Stop impersonating" restores the admin's original session.
+3. BetterAuth creates a session as that user, keeping the admin's own session
+   token in an `admin_session` cookie.
+4. An **impersonation banner** appears with a **"Stop impersonating"** button.
+5. Clicking it restores the admin's original session and returns to
+   `/orbit/users`.
 
 > Impersonating another admin is blocked by the admin plugin.
+
+**Why the banner lives in the dashboard layout, not just Orbit.** The borrowed
+session carries the impersonated user's role, so `requireAdmin()` correctly
+rejects it and redirects to `/dashboard` — an impersonation session must not
+hold admin powers. If the only exit were in the Orbit topbar, the admin would
+be stranded as that user with no way back short of clearing cookies. So
+`ImpersonationBanner` renders wherever an impersonated session can land.
+
+**`impersonatedBy` holds the admin's id**, not the impersonated user's. The
+impersonated user is `session.user`. Use `impersonatorIdOf()` from
+`src/lib/auth/helpers.ts` rather than reading the field directly.

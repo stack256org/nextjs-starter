@@ -1,55 +1,44 @@
-import { getSession } from "@/lib/auth/helpers";
-import { OrbitSidebar } from "@/components/orbit/orbit-sidebar";
+import { requireAdmin } from "@/lib/auth/helpers";
+import { displayName } from "@/lib/auth/config";
+import { OrbitSidebar, OrbitMobileNav } from "@/components/orbit/orbit-nav";
 import { OrbitTopbar } from "@/components/orbit/orbit-topbar";
 
 /**
- * Orbit Admin layout — server-side admin check + sidebar navigation.
+ * Orbit Admin layout — server-side admin gate + navigation.
  *
- * The sidebar (DaisyUI `Menu` in a `Drawer`) holds the admin nav.
- * The topbar shows the current user or the "you are impersonating"
- * banner when an admin is impersonating someone.
+ * `requireAdmin()` redirects anyone whose `role` column isn't "admin",
+ * including an admin who is currently impersonating a regular user (the
+ * borrowed session carries the impersonated user's role). That's deliberate:
+ * an impersonation session must not hold admin powers. The way back is the
+ * impersonation banner, which renders on the dashboard.
  *
- * The `dim` DaisyUI theme is applied for a dark, admin-style look.
+ * NOTE: do NOT pin a `data-theme` here. DaisyUI resolves theme variables from
+ * the nearest ancestor carrying `data-theme`, so a hard-coded value on this
+ * wrapper overrides the one `next-themes` writes on <html> and the theme
+ * toggle silently stops working throughout Orbit.
  */
 export default async function OrbitLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession({ requireAuth: true });
-  if (!session) return null;
+  const session = await requireAdmin();
 
-  // Server-side admin gate — check role only (no email whitelist)
-  const userRole = (session.user as { role?: string }).role;
-
-  if (userRole !== "admin") {
-    const { redirect } = await import("next/navigation");
-    redirect("/dashboard");
-  }
-
-  const isImpersonating = !!(
-    session.session as { impersonatedBy?: string }
-  ).impersonatedBy;
+  const user = {
+    id: session.user.id,
+    name: displayName(session.user),
+    email: session.user.email,
+    image: session.user.image ?? null,
+  };
 
   return (
-    <div
-      className="min-h-screen bg-base-300"
-      data-theme="dim"
-    >
-      <OrbitTopbar
-        user={{
-          id: session.user.id,
-          name: session.user.name,
-          email: session.user.email,
-          image: session.user.image,
-          role: (session.user as { role?: string }).role ?? "user",
-        }}
-        isImpersonating={isImpersonating}
-      />
-      <div className="flex min-h-[calc(100vh-4rem)]">
-        <OrbitSidebar isImpersonating={isImpersonating} />
-        <main className="flex-1 overflow-y-auto p-6 bg-base-100">
-          {children}
+    <div className="min-h-[100dvh] bg-base-100">
+      <OrbitTopbar user={user} />
+      <OrbitMobileNav />
+      <div className="flex">
+        <OrbitSidebar />
+        <main id="main" className="min-w-0 flex-1 px-4 py-8 sm:px-8">
+          <div className="mx-auto max-w-6xl">{children}</div>
         </main>
       </div>
     </div>

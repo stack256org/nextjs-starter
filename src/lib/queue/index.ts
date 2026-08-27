@@ -22,6 +22,14 @@ let boss: PgBoss | null = null;
 let started = false;
 
 /**
+ * Every queue the app uses. `initQueue()` creates them all up front so that
+ * `boss.send()` works from the Next.js server process even though only the
+ * worker process registers handlers.
+ * Keep this in sync with `JobType` in ./jobs.ts.
+ */
+const QUEUE_NAMES = ["send-email"] as const;
+
+/**
  * Returns the initialized pgBoss instance.
  * Throws if `initQueue()` hasn't been called yet.
  */
@@ -43,10 +51,9 @@ export async function initQueue() {
   await boss.start();
   // Create queues so that boss.send() works even before the worker has
   // registered its handlers (e.g. on the Next.js web server process).
-  await boss.createQueue("send-email");
-  await boss.createQueue("process-post");
+  await Promise.all(QUEUE_NAMES.map((name) => boss!.createQueue(name)));
   started = true;
-  console.log("✅ pgBoss queue initialized");
+  console.log("pgBoss queue initialized");
 }
 
 /**
@@ -57,5 +64,5 @@ export async function closeQueue() {
   await boss.stop();
   started = false;
   boss = null;
-  console.log("🛑 pgBoss queue stopped");
+  console.log("pgBoss queue stopped");
 }

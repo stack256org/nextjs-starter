@@ -14,8 +14,8 @@ import { db, closeDb } from "./index";
  *   - API:    import { runMigrations } from "@/lib/db/migrate"
  */
 export async function runMigrations() {
-  console.log("🔄 Running database migrations...");
+  console.log("Running database migrations...");
   await migrate(db, { migrationsFolder: "./src/lib/db/migrations" });
-  console.log("✅ Migrations applied successfully.");
+  console.log("Migrations applied successfully.");
   await closeDb();
 }

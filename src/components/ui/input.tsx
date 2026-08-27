@@ -1,37 +1,12 @@
-import {
-  type InputHTMLAttributes,
-  type ReactNode,
-  useId,
-} from "react";
+"use client";
 
-export interface LabelProps {
-  children: ReactNode;
-  htmlFor?: string;
-  className?: string;
-}
+import { Input as HuiInput, type InputProps as HuiInputProps } from "@headlessui/react";
+import type { ReactNode } from "react";
+import { FormField } from "./field";
 
-/**
- * A DaisyUI-styled label for form inputs.
- * @see https://daisyui.com/components/label/
- */
-export function Label({ children, htmlFor, className = "" }: LabelProps) {
-  return (
-    <label htmlFor={htmlFor} className={`label ${className}`}>
-      <span className="label-text">{children}</span>
-    </label>
-  );
-}
+export type InputSize = "xs" | "sm" | "md" | "lg" | "xl";
 
-type InputSize = "xs" | "sm" | "md" | "lg" | "xl";
-
-export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
-  label?: ReactNode;
-  size?: InputSize;
-  error?: boolean;
-}
-
-const inputSizeClasses: Record<InputSize, string> = {
+const sizeClasses: Record<InputSize, string> = {
   xs: "input-xs",
   sm: "input-sm",
   md: "input-md",
@@ -39,33 +14,67 @@ const inputSizeClasses: Record<InputSize, string> = {
   xl: "input-xl",
 };
 
+export interface InputProps extends Omit<HuiInputProps, "size" | "className"> {
+  label?: ReactNode;
+  description?: ReactNode;
+  error?: ReactNode;
+  size?: InputSize;
+  className?: string;
+  /** Rendered inside the field, before the text. */
+  startIcon?: ReactNode;
+}
+
 /**
- * A DaisyUI-styled input field.
- * @see https://daisyui.com/components/input/
+ * A DaisyUI-styled text input built on Headless UI's `Input`.
  *
- * @example
- *   <Input label="Email" type="email" placeholder="you@example.com" />
+ * When wrapped in a `label`/`description`, `Field` handles the id and
+ * `aria-describedby` wiring; the visual styling is DaisyUI's `input` class so
+ * it tracks the active theme.
  */
 export function Input({
   label,
+  description,
+  error,
   size = "md",
-  error = false,
   className = "",
-  id,
+  startIcon,
+  disabled,
+  required,
   ...props
 }: InputProps) {
-  const generatedId = useId();
-  const inputId = id || generatedId;
-  const sizeClass = inputSizeClasses[size];
-
-  return (
-    <div className="form-control w-full">
-      {label && <Label htmlFor={inputId}>{label}</Label>}
-      <input
-        id={inputId}
-        className={`input w-full ${sizeClass} ${error ? "input-error" : ""} ${className}`}
+  const control = (
+    <div className="relative w-full">
+      {startIcon && (
+        <span
+          className="pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-base-content/50"
+          aria-hidden="true"
+        >
+          {startIcon}
+        </span>
+      )}
+      <HuiInput
+        invalid={Boolean(error)}
+        disabled={disabled}
+        required={required}
+        className={`input w-full ${sizeClasses[size]} ${startIcon ? "pl-10" : ""} ${
+          error ? "input-error" : ""
+        } ${className}`}
         {...props}
       />
     </div>
+  );
+
+  if (!label && !description && !error) return control;
+
+  return (
+    <FormField
+      label={label}
+      description={description}
+      error={error}
+      required={required}
+      disabled={disabled}
+    >
+      {control}
+    </FormField>
   );
 }

@@ -1,19 +1,16 @@
 #!/usr/bin/env node
 /**
  * CLI entry point for the pgBoss worker process.
- * Run with: npx tsx src/lib/queue/worker.cli.ts  or  pnpm worker
+ * Run with: pnpm worker  (or: npx tsx src/lib/queue/worker.cli.ts)
  *
- * Loads .env.local automatically so the worker can read DATABASE_URL,
- * SMTP_* env vars, etc. when run outside of Next.js.
+ * `@/lib/env/load` MUST stay the first import — see the comment in that file.
+ * Sibling imports are evaluated in source order, so this guarantees
+ * DATABASE_URL is populated before `@/lib/db` builds its connection pool.
  */
-import dotenv from "dotenv";
+import "@/lib/env/load";
 import { startWorker } from "./worker";
 
-// Load environment variables from .env.local (Next.js convention).
-// Must run before any module that reads process.env at import time.
-dotenv.config({ path: ".env.local" });
-
 startWorker().catch((err) => {
-  console.error("❌ Worker crashed:", err);
+  console.error("Worker crashed:", err);
   process.exit(1);
 });

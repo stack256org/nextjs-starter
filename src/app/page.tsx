@@ -1,118 +1,137 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
+import { getSession } from "@/lib/auth/helpers";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Star, Users } from "@phosphor-icons/react/dist/ssr";
+import { ButtonLink } from "@/components/ui";
+import {
+  DatabaseIcon,
+  StackIcon,
+  FingerprintIcon,
+  PaletteIcon,
+  ArrowRightIcon,
+} from "@phosphor-icons/react/dist/ssr";
 
-export default function Home() {
+export const metadata: Metadata = { title: "Next.js Starter" };
+
+const features = [
+  {
+    icon: DatabaseIcon,
+    title: "Drizzle on PostgreSQL",
+    body: "A typed schema, generated migrations, and a connection pool that is already wired into every server component and CLI.",
+  },
+  {
+    icon: StackIcon,
+    title: "pgBoss job queue",
+    body: "Background work runs in its own process against the same database. Retry, cancel and inspect any job from the admin area.",
+  },
+  {
+    icon: FingerprintIcon,
+    title: "BetterAuth",
+    body: "Magic links out of the box, Google OAuth when you add credentials, plus roles, impersonation and database-backed sessions.",
+  },
+  {
+    icon: PaletteIcon,
+    title: "Headless UI and DaisyUI",
+    body: "Accessible behaviour from Headless UI, theming from DaisyUI tokens. Every component is documented on one page.",
+  },
+];
+
+/**
+ * Public landing page.
+ *
+ * A Server Component so it can read the session — showing "Sign in" to
+ * someone who is already signed in is the most common reason a working login
+ * looks broken.
+ */
+export default async function Home() {
+  const session = await getSession();
+
   return (
-    <div className="min-h-screen bg-base-100 flex flex-col items-center p-4">
-      {/* Fixed theme toggle in the corner */}
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+    <div className="flex min-h-[100dvh] flex-col bg-base-100">
+      <header className="flex h-16 items-center gap-4 px-4 sm:px-6">
+        <span className="flex-1 font-semibold">Next.js Starter</span>
+        <nav aria-label="Main" className="flex items-center gap-1">
+          <Link href="/ui" className="btn btn-ghost btn-sm">
+            Components
+          </Link>
+          <ThemeToggle />
+          <ButtonLink
+            href={session ? "/dashboard" : "/login"}
+            variant="primary"
+            size="sm"
+          >
+            {session ? "Dashboard" : "Sign in"}
+          </ButtonLink>
+        </nav>
+      </header>
 
-      <main className="w-full max-w-4xl mx-auto pt-12">
-        {/* Hero Section */}
-        <section className="hero min-h-screen py-20">
-          <div className="hero-content flex-col lg:flex-row-reverse">
-            <div className="avatar placeholder">
-              <div className="bg-primary text-primary-content rounded-2xl w-52 h-52 flex items-center justify-center">
-              </div>
-            </div>
-            <div>
-              <h1 className="text-5xl font-bold">Welcome to Next.js Starter</h1>
-              <p className="py-6 text-lg">
-                A production-ready starter with TypeScript, App Router, Drizzle ORM,
-                pgBoss queue, and DaisyUI design system.
-              </p>
-              <div className="flex gap-4">
-                <Link href="/docs" passHref>
-                  <button className="btn btn-primary">Get Started</button>
-                </Link>
-                <Link href="/login" passHref>
-                  <button className="btn btn-outline">Sign In</button>
-                </Link>
-              </div>
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6">
+        {/* Left-aligned, asymmetric hero — not a centred column. */}
+        <section className="grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          <div className="max-w-[22ch]">
+            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+              The parts you rebuild every time, already built
+            </h1>
+          </div>
+
+          <div className="flex flex-col gap-6 lg:pt-2">
+            <p className="max-w-[58ch] text-lg leading-relaxed text-base-content/70">
+              Auth, a typed database layer, a background worker, an admin area
+              and a themed component set — wired together, tested end to end,
+              and documented. Clone it and start on the part that is actually
+              yours.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink
+                href={session ? "/dashboard" : "/login"}
+                variant="primary"
+              >
+                {session ? "Open the dashboard" : "Get started"}
+                <ArrowRightIcon size={16} aria-hidden="true" />
+              </ButtonLink>
+              <ButtonLink href="/ui">Browse the components</ButtonLink>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
-        <section className="py-16">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            What&apos;s Included
+        {/* Two-column zig-zag, separated by rules rather than boxed in cards. */}
+        <section className="border-t border-base-300 py-16">
+          <h2 className="mb-10 text-sm tracking-wide text-base-content/50 uppercase">
+            What is included
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="card bg-base-200 shadow-xl">
-              <div className="card-body">
-                <h3 className="card-title">🗄️ Drizzle ORM</h3>
-                <p>
-                  Type-safe PostgreSQL with auto-generated migrations and a
-                  clean query DSL.
-                </p>
-              </div>
-            </div>
-            <div className="card bg-base-200 shadow-xl">
-              <div className="card-body">
-                <h3 className="card-title">⚙️ pgBoss Worker</h3>
-                <p>
-                  Background job processing backed by PostgreSQL with retries
-                  and graceful shutdown.
-                </p>
-              </div>
-            </div>
-            <div className="card bg-base-200 shadow-xl">
-              <div className="card-body">
-                <h3 className="card-title">🎨 DaisyUI</h3>
-                <p>
-                  Component library with 6+ themes and full TypeScript support.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Components Showcase */}
-        <section className="py-16">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            DaisyUI Components
-          </h2>
-          <div className="flex flex-col gap-8 items-center">
-            <div className="join">
-              <button className="btn btn-outline join-item">Overview</button>
-              <button className="btn btn-outline join-item">Profile</button>
-              <button className="btn btn-outline join-item">Settings</button>
-            </div>
-
-            <div className="stats shadow">
-              <div className="stat">
-                <div className="stat-figure text-primary">
-                  <Star size={32} />
+          <div className="grid gap-x-12 gap-y-10 sm:grid-cols-2">
+            {features.map(({ icon: FeatureIcon, title, body }) => (
+              <div key={title} className="flex gap-4">
+                <FeatureIcon
+                  size={22}
+                  className="mt-0.5 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                <div>
+                  <h3 className="font-medium">{title}</h3>
+                  <p className="mt-1.5 max-w-[52ch] text-sm leading-relaxed text-base-content/70">
+                    {body}
+                  </p>
                 </div>
-                <div className="stat-title">Project Rating</div>
-                <div className="stat-value text-primary">4.8</div>
-                <div className="stat-desc">⭐ 4.8 / 5 stars</div>
               </div>
-              <div className="stat">
-                <div className="stat-figure text-secondary">
-                  <Users size={32} />
-                </div>
-                <div className="stat-title">Projects</div>
-                <div className="stat-value text-secondary">12</div>
-                <div className="stat-desc">12 active projects</div>
-              </div>
-            </div>
-
-            <div className="form-control w-64">
-              <label className="label cursor-pointer">
-                <input type="checkbox" className="toggle" defaultChecked />
-                <span className="label-text ml-2">Enable notifications</span>
-              </label>
-            </div>
+            ))}
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-base-300 px-4 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-sm text-base-content/60">
+          <span>MIT licensed. Use it for anything.</span>
+          <nav aria-label="Footer" className="flex gap-5">
+            <Link href="/ui" className="link link-hover">
+              Components
+            </Link>
+            <Link href="/login" className="link link-hover">
+              Sign in
+            </Link>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

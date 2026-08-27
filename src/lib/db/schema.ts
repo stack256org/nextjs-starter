@@ -4,8 +4,8 @@ import {
   varchar,
   timestamp,
   boolean,
-  integer,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ── BetterAuth tables ────────────────────────────────────────────
@@ -22,10 +22,9 @@ export const users = pgTable(
     email: varchar("email", { length: 255 }).notNull().unique(),
     emailVerified: boolean("email_verified").notNull().default(false),
     image: text("image"),
-    /** Custom field — `"user"` or `"admin"` */
+    /** BetterAuth admin plugin — `"user"` or `"admin"` */
     role: varchar("role", { length: 50 }).notNull().default("user"),
-    is_active: boolean("is_active").notNull().default(true),
-    /** BetterAuth admin plugin fields */
+    /** BetterAuth admin plugin — ban/suspension fields */
     banned: boolean("banned").default(false),
     banReason: text("ban_reason"),
     banExpires: timestamp("ban_expires", { withTimezone: true }),
@@ -46,11 +45,13 @@ export const sessions = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    token: text("token").notNull(),
+    // BetterAuth looks sessions up by token on every request — it must be
+    // unique, and the index is what keeps that lookup cheap.
+    token: text("token").notNull().unique(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
-    activeOrganizationId: text("active_organization_id"),
+    /** Set by the admin plugin — the id of the admin who started impersonating */
     impersonatedBy: text("impersonated_by"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -70,7 +71,6 @@ export const accounts = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     providerId: text("provider_id").notNull(),
-    issuer: text("issuer"),
     accountId: text("account_id").notNull(),
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
@@ -92,9 +92,12 @@ export const accounts = pgTable(
   },
   (table) => [
     index("accounts_user_id_idx").on(table.userId),
-    index("accounts_provider_id_idx").on(table.providerId),
-    // Composite uniqueness on provider_id + account_id + user_id
-    // (BetterAuth uses this to deduplicate linked accounts)
+    // One row per (provider, remote account) — this is how BetterAuth
+    // deduplicates a social login that is linked more than once.
+    uniqueIndex("accounts_provider_account_idx").on(
+      table.providerId,
+      table.accountId,
+    ),
   ],
 );
 
@@ -114,27 +117,3 @@ export const verifications = pgTable(
   },
   (table) => [index("verifications_identifier_idx").on(table.identifier)],
 );
-
-// ── Application tables ───────────────────────────────────────────
-
-export const posts = pgTable("posts", {
-  id: text("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
-  slug: varchar("slug", { length: 255 }).notNull().unique(),
-  content: text("content").notNull(),
-  excerpt: text("excerpt"),
-  status: varchar("status", { length: 50 })
-    .notNull()
-    .default("draft"),
-  authorId: text("author_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  viewCount: integer("view_count").notNull().default(0),
-  publishedAt: timestamp("published_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});

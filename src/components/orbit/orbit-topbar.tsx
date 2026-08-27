@@ -1,11 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth/client";
-import { Avatar } from "@/components/ui/avatar";
-import { Dropdown, DropdownItem, DropdownSeparator } from "@/components/ui/dropdown";
-import { StopImpersonatingButton } from "@/components/orbit/stop-impersonating-button";
+import { AFTER_SIGN_OUT_URL } from "@/lib/auth/config";
+import { Avatar, Badge } from "@/components/ui";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownSeparator,
+  DropdownHeader,
+} from "@/components/ui/dropdown";
 
 interface OrbitTopbarProps {
   user: {
@@ -13,55 +19,46 @@ interface OrbitTopbarProps {
     name: string;
     email: string;
     image?: string | null;
-    role?: string;
   };
-  isImpersonating: boolean;
 }
 
-export function OrbitTopbar({ user, isImpersonating }: OrbitTopbarProps) {
+export function OrbitTopbar({ user }: OrbitTopbarProps) {
   const router = useRouter();
 
   async function handleSignOut() {
     await authClient.signOut();
-    router.push("/login");
+    router.push(AFTER_SIGN_OUT_URL);
+    router.refresh();
   }
 
   return (
-    <div className="navbar bg-base-100 shadow-sm border-b px-4 h-16">
-      {/* ── Left: brand ── */}
-      <div className="flex-1">
-        <span className="text-xl font-semibold text-primary">
-          ⚡ Orbit Admin
-        </span>
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-base-300 bg-base-100/95 px-4 backdrop-blur">
+      <div className="flex flex-1 items-center gap-2.5">
+        <Link href="/orbit" className="font-semibold">
+          Orbit
+        </Link>
+        <Badge tone="primary" outline>
+          admin
+        </Badge>
       </div>
 
-      {/* ── Center: impersonation indicator ── */}
-      {isImpersonating && (
-        <div className="badge badge-warning">
-          Impersonating {user.name}
-        </div>
-      )}
-
-      {/* ── Right: actions ── */}
-      <div className="flex items-center gap-2">
-        {isImpersonating && <StopImpersonatingButton />}
+      <div className="flex items-center gap-1">
         <ThemeToggle />
 
         <Dropdown
-          placement="bottom-end"
-          trigger={
-            <Avatar src={user.image} name={user.name ?? user.email} size="md" />
-          }
+          label="Account menu"
+          trigger={<Avatar src={user.image} name={user.name} size="md" shape="squircle" />}
         >
-          <DropdownItem href="/orbit/settings">Settings</DropdownItem>
+          <DropdownHeader>{user.email}</DropdownHeader>
+          <DropdownItem href="/dashboard">Dashboard</DropdownItem>
+          <DropdownItem href="/dashboard/profile">Profile</DropdownItem>
+          <DropdownItem href="/dashboard/settings">Settings</DropdownItem>
           <DropdownSeparator />
-          <DropdownItem href="/dashboard">
-            User Dashboard
+          <DropdownItem onClick={handleSignOut} destructive>
+            Sign out
           </DropdownItem>
-          <DropdownSeparator />
-          <DropdownItem onClick={handleSignOut}>Sign out</DropdownItem>
         </Dropdown>
       </div>
-    </div>
+    </header>
   );
 }

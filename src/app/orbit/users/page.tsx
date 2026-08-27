@@ -1,135 +1,130 @@
-import { getSession } from "@/lib/auth/helpers";
-import { auth } from "@/lib/auth/server";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { headers } from "next/headers";
-import { ImpersonateButton } from "@/components/orbit/impersonate-button";
-import { SetRoleButton } from "@/components/orbit/set-role-button";
-import { Avatar } from "@/components/ui/avatar";
-import { Warning } from "@phosphor-icons/react/dist/ssr";
+import { requireAdmin } from "@/lib/auth/helpers";
+import { auth } from "@/lib/auth/server";
+import { displayName } from "@/lib/auth/config";
+import { formatDate } from "@/lib/format/session";
+import { Avatar, Badge, EmptyState } from "@/components/ui";
+import { UsersIcon, CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
+
+export const metadata: Metadata = { title: "Users · Orbit Admin" };
+
+export const dynamic = "force-dynamic";
+
+interface AdminUser {
+  id: string;
+  name?: string | null;
+  email: string;
+  image?: string | null;
+  role?: string | null;
+  banned?: boolean | null;
+  emailVerified?: boolean;
+  createdAt: string | Date;
+}
 
 /**
- * Orbit admin — Users list page.
+ * Orbit admin — user list.
  *
- * Lists all users via BetterAuth's admin API with an impersonation
- * button (for admins) and a role toggle.
+ * Rows link through to the detail page, which is where role, ban state and
+ * session controls live. Keeping actions off the list means no accidental
+ * privilege change from a mis-click while scanning.
  */
 export default async function OrbitUsersPage() {
-  const session = await getSession({ requireAuth: true });
-  if (!session) return null;
+  const session = await requireAdmin();
 
-  // Server-side admin gate — check role only (no email whitelist)
-  const userRole = (session.user as { role?: string }).role;
-
-  if (userRole !== "admin") {
-    const { redirect } = await import("next/navigation");
-    redirect("/dashboard");
-  }
-
-  const isImpersonating = !!(
-    session.session as { impersonatedBy?: string }
-  ).impersonatedBy;
-
-  // Fetch all users via BetterAuth's admin API
-  const usersList = (await auth.api.listUsers({
+  const result = await auth.api.listUsers({
     headers: await headers(),
-    query: {
-      limit: 100,
-    },
-  })) as unknown as { users: Array<Record<string, unknown>> };
+    query: { limit: 100, sortBy: "createdAt", sortDirection: "desc" },
+  });
 
-  const userList = usersList?.users ?? [];
+  const userList = (result as unknown as { users?: AdminUser[] }).users ?? [];
+  const adminCount = userList.filter((u) => u.role === "admin").length;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Users</h1>
+    <div className="flex flex-col gap-6">
+      <header>
+        <h1 className="text-2xl font-semibold">Users</h1>
+        <p className="mt-1 text-sm text-base-content/70">
+          {userList.length} account{userList.length === 1 ? "" : "s"},{" "}
+          {adminCount} with admin access. Select anyone to manage their role,
+          sessions and access.
+        </p>
+      </header>
 
-      {isImpersonating && (
-        <div className="alert alert-warning">
-          <Warning size={20} />
-          <span>
-            You are currently impersonating a user. Actions performed are
-            on behalf of that user.
-          </span>
+      {userList.length === 0 ? (
+        <EmptyState
+          icon={<UsersIcon size={40} aria-hidden="true" />}
+          title="Nobody has signed up yet"
+          description="Accounts appear here the first time someone completes a magic-link sign-in."
+        />
+      ) : (
+        <div className="overflow-x-auto rounded-box border border-base-300">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th><span className="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {userList.map((u) => {
+                const role = u.role ?? "user";
+                const isCurrentUser = u.id === session.user.id;
+                const name = displayName({ name: u.name, email: u.email });
+
+                return (
+                  <tr key={u.id} className="hover:bg-base-200/60">
+                    <td>
+                      <Link
+                        href={`/orbit/users/${u.id}`}
+                        className="flex items-center gap-3"
+                      >
+                        <Avatar
+                          src={u.image ?? null}
+                          name={name}
+                          size="md"
+                          shape="squircle"
+                        />
+                        <span>
+                          <span className="font-medium hover:underline">
+                            {name}
+                          </span>
+                          <span className="mt-0.5 flex gap-1">
+                            {isCurrentUser && <Badge tone="info">You</Badge>}
+                            {u.banned && <Badge tone="error">Banned</Badge>}
+                          </span>
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="text-sm text-base-content/80">{u.email}</td>
+                    <td>
+                      <Badge tone={role === "admin" ? "primary" : "ghost"}>
+                        {role}
+                      </Badge>
+                    </td>
+                    <td className="text-xs text-base-content/60">
+                      {formatDate(u.createdAt)}
+                    </td>
+                    <td className="text-right">
+                      <Link
+                        href={`/orbit/users/${u.id}`}
+                        className="inline-flex items-center gap-1 text-sm text-base-content/70 transition-colors hover:text-base-content"
+                      >
+                        Manage
+                        <CaretRightIcon size={13} aria-hidden="true" />
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
-
-      <div className="overflow-x-auto rounded-box border border-base-200 bg-base-100">
-        <table className="table table-zebra">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userList.map((u: Record<string, unknown>) => {
-              const uId = String(u.id ?? "");
-              const uName = String(u.name ?? "");
-              const uEmail = String(u.email ?? "");
-              const uRole = String(u.role ?? "user");
-              const isCurrentUser = uId === session.user.id;
-              const impersonatedByUserId = (
-                session.session as { impersonatedBy?: string }
-              )?.impersonatedBy;
-              const isCurrentImpersonated =
-                uId === impersonatedByUserId;
-
-              return (
-                <tr key={uId}>
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <Avatar src={u.image as string | null} name={uName || uEmail} size="sm" />
-                      <div>
-                        <div className="font-medium">
-                          {uName || uEmail}
-                        </div>
-                        <div className="flex gap-1">
-                          {isCurrentUser && (
-                            <span className="badge badge-xs badge-primary">
-                              You
-                            </span>
-                          )}
-                          {isCurrentImpersonated && (
-                            <span className="badge badge-xs badge-warning">
-                              Impersonated
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{uEmail}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        uRole === "admin"
-                          ? "badge-primary"
-                          : "badge-ghost"
-                      }`}
-                    >
-                      {uRole}
-                    </span>
-                  </td>
-                  <td className="text-right space-x-1">
-                    <SetRoleButton
-                      userId={uId}
-                      currentRole={uRole}
-                      disabled={isCurrentUser || isCurrentImpersonated}
-                    />
-                    <ImpersonateButton
-                      userId={uId}
-                      disabled={
-                        uRole === "admin" || isCurrentUser
-                      }
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

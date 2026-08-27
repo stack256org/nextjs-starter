@@ -2,12 +2,16 @@
 
 import {
   Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+  DialogDescription,
   type DialogProps,
 } from "@headlessui/react";
 import { type ReactNode } from "react";
 import { XIcon } from "@phosphor-icons/react/dist/ssr";
 
-export { Dialog };
+export { Dialog, DialogPanel, DialogTitle, DialogDescription };
 export type { DialogProps };
 
 type ModalSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
@@ -34,9 +38,12 @@ const sizeClasses: Record<ModalSize, string> = {
 };
 
 /**
- * A Headless UI `Dialog` (modal) styled with DaisyUI classes.
+ * A Headless UI `Dialog` styled with DaisyUI classes.
  *
- * Usage:
+ * Uses the standalone `DialogPanel` / `DialogTitle` components rather than the
+ * `Dialog.Panel` dot-notation, which Headless UI v2 deprecated.
+ *
+ * @example
  *   <Modal isOpen={open} onClose={() => setOpen(false)} title="Confirm">
  *     <p>Are you sure?</p>
  *   </Modal>
@@ -49,19 +56,19 @@ export function Modal({
   children,
   size = "md",
 }: ModalProps) {
-  const sizeClass = sizeClasses[size];
-
   return (
-    <Dialog open={isOpen} onClose={onClose}>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-base-content/30" aria-hidden="true" />
+    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-base-content/40 transition-opacity duration-150 data-closed:opacity-0"
+      />
 
-      {/* Panel */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <Dialog.Panel
-          className={`relative w-full ${sizeClass} rounded-box bg-base-100 p-6 shadow-xl`}
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel
+          transition
+          className={`relative w-full ${sizeClasses[size]} rounded-box bg-base-100 p-6 text-base-content shadow-xl
+            transition duration-150 ease-out data-closed:scale-95 data-closed:opacity-0`}
         >
-          {/* Close button */}
           <button
             type="button"
             onClick={onClose}
@@ -72,20 +79,18 @@ export function Modal({
           </button>
 
           {title && (
-            <Dialog.Title className="text-lg font-semibold mb-2">
+            <DialogTitle className="mb-2 pr-8 text-lg font-semibold">
               {title}
-            </Dialog.Title>
+            </DialogTitle>
           )}
           {description && (
-            <Dialog.Description className="text-sm opacity-70 mb-4">
+            <DialogDescription className="mb-4 text-sm opacity-70">
               {description}
-            </Dialog.Description>
+            </DialogDescription>
           )}
 
-          <div className="text-base-content">
-            {children}
-          </div>
-        </Dialog.Panel>
+          {children}
+        </DialogPanel>
       </div>
     </Dialog>
   );
