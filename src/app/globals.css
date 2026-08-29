@@ -167,47 +167,17 @@ html {
 }
 
 /* ---------------------------------------------------------------------------
- * Focus outlines — removed everywhere, by product decision.
- *
- * This is deliberate and overrides the framework defaults. DaisyUI draws a
- * 2px outline on `.input`, `.select`, `.textarea`, `.checkbox`, `.radio`,
- * `.toggle`, `.btn`, `.link`, `.tab` and `.card` (242 `:focus-visible` rules
- * in daisyui.css), and several of them fire on plain `:focus` as well, so a
- * single `*:focus { outline: none }` is not enough — the component rules win
- * on specificity. Hence the explicit selector list and `!important`.
- *
- * Borders are untouched. Only the focus ring goes.
- *
- * Trade-off, stated plainly: keyboard-only users lose the visible indicator
- * of where they are on the page. Everything remains fully keyboard-operable —
- * tab order, Enter/Space activation and Headless UI's arrow-key handling are
- * all intact — but the position is no longer shown. If you ever want it back,
- * delete this block; the `:focus-visible` variant only shows for keyboard
- * navigation and never on a mouse click.
+/* ---------------------------------------------------------------------------
+ * Focus outlines — accessible, crisp rings for keyboard navigation only.
  * ------------------------------------------------------------------------- */
-*,
-*::before,
-*::after,
-:where(
-  a, button, input, select, textarea, summary, details, label,
-  [tabindex], [role="button"], [role="menuitem"], [role="option"],
-  [role="tab"], [role="checkbox"], [role="radio"], [role="switch"]
-),
-:where(.btn, .input, .select, .textarea, .checkbox, .radio, .toggle,
-       .link, .tab, .card, .file-input, .range, .menu :where(a, button)) {
-  &:focus,
-  &:focus-visible,
-  &:focus-within {
-    outline: none !important;
-    outline-offset: 0 !important;
-  }
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-/* Headless UI marks the focused item with `data-focus`; DaisyUI's `menu`
-   highlights it with a background, which is retained. Only rings are removed. */
-[data-focus],
-[data-focus-visible] {
-  outline: none !important;
+/* Ensure mouse clicks don't show an intrusive ring when not navigating via keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Skip link — visible only once focused. */
@@ -223,3 +193,4 @@ html {
 .skip-link:focus-visible {
   translate: 0 0;
 }
+

@@ -31,6 +31,14 @@ export interface InputProps extends Omit<HuiInputProps, "size" | "className"> {
  * `aria-describedby` wiring; the visual styling is DaisyUI's `input` class so
  * it tracks the active theme.
  */
+const iconPaddingClasses: Record<InputSize, string> = {
+  xs: "pl-8",
+  sm: "pl-9",
+  md: "pl-10",
+  lg: "pl-11",
+  xl: "pl-12",
+};
+
 export function Input({
   label,
   description,
@@ -56,9 +64,9 @@ export function Input({
         invalid={Boolean(error)}
         disabled={disabled}
         required={required}
-        className={`input w-full ${sizeClasses[size]} ${startIcon ? "pl-10" : ""} ${
-          error ? "input-error" : ""
-        } ${className}`}
+        className={`input w-full transition-all duration-150 ${sizeClasses[size]} ${
+          startIcon ? iconPaddingClasses[size] : ""
+        } ${error ? "input-error" : ""} ${className}`}
         {...props}
       />
     </div>

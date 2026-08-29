@@ -104,21 +104,22 @@ export function AuthForm({ mode, googleEnabled }: AuthFormProps) {
 
   if (sentTo) {
     return (
-      <div className="flex flex-col items-center gap-5 text-center">
-        <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <PaperPlaneTiltIcon size={22} aria-hidden="true" />
+      <div className="flex flex-col items-center gap-5 rounded-field border border-primary/20 bg-primary/5 p-6 text-center">
+        <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary shadow-xs">
+          <PaperPlaneTiltIcon size={26} weight="duotone" aria-hidden="true" />
         </span>
         <div>
-          <p className="font-medium">Check your inbox</p>
-          <p className="mt-1.5 text-sm text-base-content/70">
-            We sent a link to <strong>{sentTo}</strong>.{" "}
+          <p className="text-lg font-semibold text-base-content">Check your inbox</p>
+          <p className="mt-2 text-sm leading-relaxed text-base-content/75">
+            We sent a secure magic link to <strong className="text-base-content">{sentTo}</strong>.{" "}
             {isRegister
               ? "Open it to finish setting up your account."
-              : "Open it and you'll be signed in."}{" "}
+              : "Open it and you'll be signed in automatically."}{" "}
             It works once and expires in {EXPIRY_MINUTES} minutes.
           </p>
         </div>
         <Button
+          variant="outline"
           size="sm"
           onClick={() => {
             setSentTo(null);

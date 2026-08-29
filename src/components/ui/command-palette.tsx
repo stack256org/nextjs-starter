@@ -96,13 +96,13 @@ export function CommandPalette({
     <Dialog open={open} onClose={close} className="relative z-50">
       <DialogBackdrop
         transition
-        className="fixed inset-0 bg-base-content/40 transition-opacity duration-150 data-closed:opacity-0"
+        className="fixed inset-0 bg-base-content/40 backdrop-blur-sm transition-opacity duration-150 data-closed:opacity-0"
       />
 
       <div className="fixed inset-0 flex items-start justify-center p-4 pt-[12vh]">
         <DialogPanel
           transition
-          className="w-full max-w-lg overflow-hidden rounded-box border border-base-300 bg-base-100 shadow-2xl
+          className="w-full max-w-lg overflow-hidden rounded-box border border-base-300 bg-base-100/95 backdrop-blur-md shadow-2xl
             transition duration-150 ease-out data-closed:scale-95 data-closed:opacity-0"
         >
           <Combobox

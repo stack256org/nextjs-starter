@@ -46,7 +46,8 @@ export function Checkbox({
       name={name}
       value={value}
       className="group flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-selector border border-base-content/30 bg-base-100
-        transition-colors duration-150
+        transition-all duration-150 active:scale-95
+        focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2
         data-checked:border-primary data-checked:bg-primary
         data-indeterminate:border-primary data-indeterminate:bg-primary
         data-disabled:cursor-not-allowed data-disabled:opacity-50"

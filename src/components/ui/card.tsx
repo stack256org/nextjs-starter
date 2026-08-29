@@ -14,20 +14,38 @@ import type { ReactNode } from "react";
 export interface CardProps {
   children: ReactNode;
   /** `flush` removes padding, for cards holding a table or media. */
-  padding?: "none" | "normal";
+  padding?: "none" | "normal" | "compact";
+  /** Adds interactive hover elevation and border highlight. */
+  hoverable?: boolean;
+  /** Visual variant: default (bordered surface), subtle (soft fill), ghost (border only). */
+  variant?: "default" | "subtle" | "ghost";
   className?: string;
 }
 
 export function Card({
   children,
   padding = "normal",
+  hoverable = false,
+  variant = "default",
   className = "",
 }: CardProps) {
+  const paddingClass =
+    padding === "normal" ? "p-5 sm:p-6" : padding === "compact" ? "p-3 sm:p-4" : "";
+
+  const variantClass =
+    variant === "subtle"
+      ? "bg-base-200/60 border border-base-300/80"
+      : variant === "ghost"
+        ? "bg-transparent border border-base-300"
+        : "bg-base-100 border border-base-300 shadow-xs";
+
+  const hoverClass = hoverable
+    ? "transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
+    : "";
+
   return (
     <div
-      className={`overflow-hidden rounded-box border border-base-300 bg-base-100 ${
-        padding === "normal" ? "p-5" : ""
-      } ${className}`}
+      className={`overflow-hidden rounded-box ${variantClass} ${paddingClass} ${hoverClass} ${className}`}
     >
       {children}
     </div>

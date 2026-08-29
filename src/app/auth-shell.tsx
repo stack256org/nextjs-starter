@@ -29,49 +29,58 @@ export function AuthShell({
 }) {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-base-100">
-      <header className="border-b border-base-300/60">
+      <header className="border-b border-base-300/60 bg-base-100/90 backdrop-blur-md">
         <Container className="flex h-16 items-center gap-4">
-          <Link href="/" className="flex-1 font-semibold">
-            Next.js Starter
+          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+            <span className="flex size-7 items-center justify-center rounded bg-primary font-mono text-xs font-bold text-primary-content">
+              N
+            </span>
+            <span>Next.js Starter</span>
           </Link>
+          <div className="flex-1" />
           <ThemeToggle />
         </Container>
       </header>
 
-      <Container as="main" id="main" className="flex flex-1 items-center py-12">
-        <div className="grid w-full items-stretch gap-16 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-24">
-          <div className="w-full self-center">
-            <div className="mb-7">
-              <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-              <p className="mt-1.5 text-sm text-base-content/70">{subtitle}</p>
+      <Container as="main" id="main" className="flex flex-1 items-center justify-center py-8 sm:py-12 lg:py-16">
+        <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)] lg:gap-16">
+          <div className="w-full">
+            <div className="rounded-box border border-base-300 bg-base-100 p-6 sm:p-8 shadow-sm">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold tracking-tight text-base-content">{title}</h1>
+                <p className="mt-1.5 text-sm text-base-content/70">{subtitle}</p>
+              </div>
+              {children}
             </div>
-            {children}
           </div>
 
-          {/* `self-stretch` plus an inner centre keeps the rule spanning the
-              whole row rather than floating at the height of its own text. */}
           {aside && (
-            <aside className="hidden self-stretch border-l border-base-300 pl-12 lg:flex lg:flex-col lg:justify-center">
-              <h2 className="text-sm tracking-wide text-base-content/50 uppercase">
-                {aside.heading}
-              </h2>
-              <ul className="mt-5 flex flex-col gap-3.5">
-                {aside.points.map((point) => (
-                  <li key={point} className="flex gap-3">
-                    <CheckIcon
-                      size={16}
-                      weight="bold"
-                      className="mt-0.5 shrink-0 text-primary"
-                      aria-hidden="true"
-                    />
-                    <span className="max-w-[46ch] text-sm leading-relaxed text-base-content/80">
-                      {point}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+            <aside className="hidden flex-col justify-center gap-6 lg:flex">
+              <div>
+                <span className="text-xs font-semibold tracking-wider text-primary uppercase">
+                  {aside.heading}
+                </span>
+                <ul className="mt-4 flex flex-col gap-3">
+                  {aside.points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex items-start gap-3 rounded-field border border-base-300/80 bg-base-200/40 p-3.5"
+                    >
+                      <CheckIcon
+                        size={18}
+                        weight="bold"
+                        className="mt-0.5 shrink-0 text-primary"
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm leading-relaxed text-base-content/80">
+                        {point}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               {aside.footnote && (
-                <p className="mt-6 max-w-[46ch] text-xs leading-relaxed text-base-content/50">
+                <p className="max-w-[46ch] text-xs leading-relaxed text-base-content/50">
                   {aside.footnote}
                 </p>
               )}

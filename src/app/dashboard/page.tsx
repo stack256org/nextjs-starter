@@ -129,31 +129,31 @@ export default async function DashboardPage({
       <Section
         divided
         title="Start here"
-        description="This starter ships the plumbing and no product. Delete this section and build in its place."
+        description="This starter ships the plumbing and no product. Delete this section and build your application in its place."
       >
-        <dl className="grid gap-6 sm:grid-cols-3">
-          <div>
-            <dt className="text-sm font-medium">Add a table</dt>
-            <dd className="mt-1 text-sm leading-relaxed text-base-content/70">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-box border border-base-300 bg-base-100 p-5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
+            <h3 className="text-sm font-semibold text-base-content">1. Add a database table</h3>
+            <p className="mt-2 text-sm leading-relaxed text-base-content/70">
               Edit <Code>src/lib/db/schema.ts</Code>, then run{" "}
               <Code>pnpm db:generate</Code> and <Code>pnpm db:migrate</Code>.
-            </dd>
+            </p>
           </div>
-          <div>
-            <dt className="text-sm font-medium">Add a background job</dt>
-            <dd className="mt-1 text-sm leading-relaxed text-base-content/70">
+          <div className="rounded-box border border-base-300 bg-base-100 p-5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
+            <h3 className="text-sm font-semibold text-base-content">2. Add a background job</h3>
+            <p className="mt-2 text-sm leading-relaxed text-base-content/70">
               Name it in <Code>src/lib/queue/jobs.ts</Code> and handle it in{" "}
-              <Code>worker.ts</Code>. Watch it run in Orbit.
-            </dd>
+              <Code>worker.ts</Code>. Inspect live queue depth in Orbit.
+            </p>
           </div>
-          <div>
-            <dt className="text-sm font-medium">Build a screen</dt>
-            <dd className="mt-1 text-sm leading-relaxed text-base-content/70">
+          <div className="rounded-box border border-base-300 bg-base-100 p-5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
+            <h3 className="text-sm font-semibold text-base-content">3. Build a feature view</h3>
+            <p className="mt-2 text-sm leading-relaxed text-base-content/70">
               Compose <Code>Page</Code>, <Code>PageHeader</Code> and{" "}
               <Code>Section</Code> from <Code>@/components/ui</Code>.
-            </dd>
+            </p>
           </div>
-        </dl>
+        </div>
       </Section>
     </Page>
   );
@@ -161,7 +161,7 @@ export default async function DashboardPage({
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs">
+    <code className="rounded bg-base-200 px-1.5 py-0.5 font-mono text-xs text-base-content/90">
       {children}
     </code>
   );
