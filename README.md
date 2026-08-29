@@ -28,13 +28,19 @@ src/
 │   ├── layout.tsx              # Root layout (fonts, ThemeProvider)
 │   ├── page.tsx                # Public landing page
 │   ├── globals.css             # Tailwind + DaisyUI themes
-│   ├── login/                  # Magic link + optional Google sign-in
+│   ├── auth-form.tsx           # Shared magic link + optional Google form
+│   ├── auth-shell.tsx          # Split layout shell for auth pages
+│   ├── not-found.tsx           # Custom 404 page
+│   ├── error.tsx               # Root error boundary
+│   ├── login/                  # Sign-in page
+│   ├── register/               # Registration page
 │   ├── dashboard/              # Signed-in area (navbar)
 │   │   ├── profile/            # Display name + avatar
 │   │   └── settings/           # Theme picker, active sessions
 │   ├── orbit/                  # Admin area (sidebar) — admins only
 │   │   ├── users/              # Roles + impersonation
-│   │   └── settings/           # Instance config, live queue stats
+│   │   └── queues/             # Queue overview + job inspector & actions
+│   ├── ui/                     # Component demo page
 │   └── api/auth/[...all]/      # BetterAuth catch-all handler
 ├── components/
 │   ├── ui/                     # Button, Input, Select, Modal, Dropdown, …
@@ -44,7 +50,8 @@ src/
     ├── db/                     # Drizzle schema, migrations, connection pool
     ├── email/                  # Nodemailer SMTP transport
     ├── env/                    # Env loading for non-Next.js entry points
-    ├── hooks/                  # Shared React hooks
+    ├── format/                 # Date and User-Agent formatting
+    ├── theme/                  # Theme config, provider, server reader
     └── queue/                  # pgBoss init, jobs, worker
 ```
 
@@ -74,7 +81,7 @@ src/
    ```bash
    cp .env.example .env.local
    ```
-   Then set `BETTER_AUTH_SECRET` — the app refuses to start without it:
+   Then set `APP_SECRET` — the app refuses to start without it:
    ```bash
    openssl rand -base64 32
    ```

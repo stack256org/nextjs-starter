@@ -13,12 +13,12 @@ import {
 
 const isDev = process.env.NODE_ENV === "development";
 
-if (!process.env.BETTER_AUTH_SECRET) {
+if (!process.env.APP_SECRET) {
   // Without a secret BetterAuth cannot sign session cookies. In dev it falls
   // back to a random value per process, which silently invalidates every
   // session on restart — fail loudly instead of debugging phantom logouts.
   throw new Error(
-    "BETTER_AUTH_SECRET is not set. Generate one with `openssl rand -base64 32` " +
+    "APP_SECRET is not set. Generate one with `openssl rand -base64 32` " +
       "and add it to .env.local.",
   );
 }
@@ -40,7 +40,7 @@ export const auth = betterAuth({
     usePlural: true,
   }),
   baseURL: APP_URL,
-  secret: process.env.BETTER_AUTH_SECRET,
+  secret: process.env.APP_SECRET,
   basePath: "/api/auth",
 
   // ── Plugins ─────────────────────────────────────────────────

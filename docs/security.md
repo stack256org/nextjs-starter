@@ -42,14 +42,14 @@ Configured in `src/lib/auth/server.ts` under `advanced`:
 | `httpOnly` | `true` | JavaScript cannot read the cookie, so an XSS bug cannot exfiltrate it |
 | `secure` | `true` outside development | The cookie is never sent over plain HTTP |
 | `sameSite` | `lax` | Not attached to cross-site POSTs, which blocks the basic CSRF shape |
-| Signed | `BETTER_AUTH_SECRET` | A forged or tampered token is rejected before any database lookup |
+| Signed | `APP_SECRET` | A forged or tampered token is rejected before any database lookup |
 
 > The previous configuration set these under a top-level `cookies` key. That is
 > **not** a BetterAuth option — it was silently ignored, and the settings only
 > took effect because they happen to match the defaults. They now live under
 > `advanced.defaultCookieAttributes`, where BetterAuth actually reads them.
 
-`BETTER_AUTH_SECRET` is required at startup; the app throws if it is missing.
+`APP_SECRET` is required at startup; the app throws if it is missing.
 Without it BetterAuth signs cookies with a value that changes per process,
 which silently invalidates every session on restart.
 

@@ -1,6 +1,5 @@
 import { createAuthClient } from "better-auth/react";
-import { adminClient } from "better-auth/plugins/admin/client";
-import { magicLinkClient } from "better-auth/plugins/magic-link/client";
+import { adminClient, magicLinkClient } from "better-auth/client/plugins";
 import { APP_URL } from "@/lib/auth/config";
 
 /**

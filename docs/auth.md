@@ -14,7 +14,7 @@ Uses [BetterAuth](https://better-auth.com) for authentication with:
 # The app throws on startup if this is unset: without it BetterAuth signs
 # cookies with a random per-process value, silently invalidating every
 # session on restart.
-BETTER_AUTH_SECRET=your-random-secret-here
+APP_SECRET=your-random-secret-here
 
 # Public URL — used by BetterAuth for callback URLs in OAuth
 NEXT_PUBLIC_APP_URL=http://localhost:3003

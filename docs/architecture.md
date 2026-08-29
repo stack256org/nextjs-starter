@@ -26,6 +26,8 @@ src/
 │   ├── layout.tsx                # Root layout — fonts + ThemeProvider
 │   ├── page.tsx                  # Public landing page (Server Component)
 │   ├── globals.css               # Tailwind + DaisyUI theme registration
+│   ├── not-found.tsx             # Custom 404 page
+│   ├── error.tsx                 # Root error boundary
 │   ├── auth-form.tsx             # Shared magic link + optional Google form
 │   ├── auth-shell.tsx            # Split layout shell for auth pages
 │   ├── login/

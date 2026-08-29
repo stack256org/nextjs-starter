@@ -29,7 +29,7 @@ topic has its own dedicated file:
 
 ```bash
 pnpm install
-cp .env.example .env.local   # set BETTER_AUTH_SECRET at minimum
+cp .env.example .env.local   # set APP_SECRET at minimum
 pnpm db:migrate              # create database tables
 pnpm dev                     # web server AND pgBoss worker, on port 3003
 ```

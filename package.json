@@ -2,7 +2,7 @@
   "name": "nextjs-starter",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.2.0",
+  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "concurrently --names web,worker --prefix-colors cyan,magenta \"next dev --port 3003\" \"tsx src/lib/queue/worker.cli.ts\"",
     "dev:web": "next dev --port 3003",
