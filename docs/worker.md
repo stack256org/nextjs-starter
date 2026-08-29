@@ -77,5 +77,6 @@ won't start two shutdowns.
 | `SMTP_PASS` | SMTP password |
 | `SMTP_FROM` | Default sender address |
 
-`src/lib/email/send.ts` throws if `SMTP_HOST`, `SMTP_USER` or `SMTP_PASS` is
-missing — the job fails loudly instead of silently dropping the email.
+`src/lib/email/send.ts` throws if `SMTP_HOST` is missing (or if credentials
+are only partially provided) — the job fails loudly instead of silently
+dropping the email.

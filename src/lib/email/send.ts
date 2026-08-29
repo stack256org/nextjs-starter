@@ -21,10 +21,15 @@ function getTransporter(): nodemailer.Transporter {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 
-  if (!host || !user || !pass) {
+  if (!host) {
     throw new Error(
-      "SMTP configuration is missing. Set SMTP_HOST, SMTP_PORT, " +
-        "SMTP_USER, and SMTP_PASS in your environment variables.",
+      "SMTP configuration is missing. Set SMTP_HOST in your environment variables.",
+    );
+  }
+
+  if ((user && !pass) || (!user && pass)) {
+    throw new Error(
+      "Incomplete SMTP credentials. Both SMTP_USER and SMTP_PASS must be provided when authentication is used.",
     );
   }
 
@@ -32,7 +37,7 @@ function getTransporter(): nodemailer.Transporter {
     host,
     port,
     secure: port === 465, // true for 465, false for other ports
-    auth: { user, pass },
+    ...(user && pass ? { auth: { user, pass } } : {}),
   });
 
   return transporter;

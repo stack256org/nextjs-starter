@@ -26,9 +26,12 @@ src/
 │   ├── layout.tsx                # Root layout — fonts + ThemeProvider
 │   ├── page.tsx                  # Public landing page (Server Component)
 │   ├── globals.css               # Tailwind + DaisyUI theme registration
+│   ├── auth-form.tsx             # Shared magic link + optional Google form
+│   ├── auth-shell.tsx            # Split layout shell for auth pages
 │   ├── login/
-│   │   ├── page.tsx              # Redirects if already signed in
-│   │   └── login-form.tsx        # Magic link + optional Google button
+│   │   └── page.tsx              # Sign-in page (redirects if already signed in)
+│   ├── register/
+│   │   └── page.tsx              # Registration page
 │   ├── dashboard/                # Signed-in area (top navbar)
 │   │   ├── layout.tsx            # Auth guard + navbar + impersonation banner
 │   │   ├── page.tsx              # Shortcuts and orientation
@@ -38,14 +41,13 @@ src/
 │   │   ├── layout.tsx            # requireAdmin() + topbar + sidebar
 │   │   ├── page.tsx              # User/session metrics
 │   │   ├── users/                # Role toggle + impersonation
-│   │   └── settings/             # Instance capabilities + live queue stats
+│   │   └── queues/               # Queue overview + job inspector & actions
 │   ├── api/auth/[...all]/route.ts  # BetterAuth catch-all (toNextJsHandler)
 │   └── favicon.ico
 ├── components/
 │   ├── theme-toggle.tsx          # Light/dark toggle
 │   ├── dashboard-navbar.tsx      # Top navbar for /dashboard
 │   ├── impersonation-banner.tsx  # Shown on any impersonated session
-│   ├── auth/sign-out-button.tsx
 │   ├── orbit/                    # Admin-only components
 │   └── ui/                       # Button, Input, Select, Modal, Dropdown, …
 └── lib/

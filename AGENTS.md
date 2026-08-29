@@ -18,8 +18,8 @@ topic has its own dedicated file:
 - [`docs/database.md`](docs/database.md) — Drizzle ORM, migrations, and
   environment variables
 - [`docs/worker.md`](docs/worker.md) — pgBoss job queue setup and usage
-- [`docs/themes.md`](docs/themes.md) — Light/dark mode with next-themes and
-  DaisyUI, plus Phosphor icons
+- [`docs/themes.md`](docs/themes.md) — Light/dark mode with DaisyUI tokens and
+  a zero-script ThemeProvider, plus Phosphor icons
 - [`docs/auth.md`](docs/auth.md) — BetterAuth setup, auth flow, admin guide, SMTP
 - [`docs/security.md`](docs/security.md) — Sessions, cookies, CSRF, and how
   Server Actions are authorised

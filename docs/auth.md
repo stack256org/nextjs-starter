@@ -110,7 +110,7 @@ sets `emailVerified` on the account at creation. Adding a separate
 5. Clicking the link returns the user to `/dashboard`.
 
    This comes from the explicit `callbackURL` passed in
-   `src/app/login/login-form.tsx`. Omit it and BetterAuth falls back to `/`,
+   `src/app/auth-form.tsx`. Omit it and BetterAuth falls back to `/`,
    dropping the user on the public landing page — which is indistinguishable
    from a login that failed.
 
