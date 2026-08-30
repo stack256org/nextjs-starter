@@ -70,7 +70,7 @@ won't start two shutdowns.
 
 | Variable | Description |
 |---|---|
-| `PGBOSS_DATABASE_URL` | Queue connection. Falls back to `DATABASE_URL`. |
+| `DATABASE_URL` | Queue connection (shared with the app's database) |
 | `SMTP_HOST` | SMTP hostname (`localhost` for Mailpit) |
 | `SMTP_PORT` | SMTP port (`1025` for Mailpit) |
 | `SMTP_USER` | SMTP username |

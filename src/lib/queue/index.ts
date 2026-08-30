@@ -4,7 +4,7 @@ import { PgBoss } from "pg-boss";
  * pgBoss instance — a PostgreSQL-based job queue.
  *
  * pgBoss stores its queue tables inside your existing PostgreSQL database,
- * so it uses the same DATABASE_URL (or PGBOSS_DATABASE_URL if set separately).
+ * so it uses the same DATABASE_URL.
  *
  * The PgBoss instance is created lazily inside `initQueue()` so that
  * environment variables are available regardless of import order (the
@@ -47,7 +47,7 @@ export function getBoss(): PgBoss {
  */
 export async function initQueue() {
   if (started) return;
-  boss = new PgBoss(process.env.PGBOSS_DATABASE_URL || process.env.DATABASE_URL!);
+  boss = new PgBoss(process.env.DATABASE_URL!);
   await boss.start();
   // Create queues so that boss.send() works even before the worker has
   // registered its handlers (e.g. on the Next.js web server process).

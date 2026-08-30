@@ -11,7 +11,6 @@ access. Migrations are managed by
 | Variable | Description | Example |
 |---|---|---|
 | `DATABASE_URL` | PostgreSQL connection string (required) | `postgres://user:pass@host:5432/dbname` |
-| `PGBOSS_DATABASE_URL` | pgBoss queue connection (optional) | Falls back to `DATABASE_URL` |
 
 ```bash
 cp .env.example .env.local
