@@ -66,7 +66,7 @@ export function Modal({
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel
           transition
-          className={`relative w-full ${sizeClasses[size]} rounded-box border border-base-300/80 bg-base-100 p-6 text-base-content shadow-2xl
+          className={`relative w-full ${sizeClasses[size]} rounded-box border border-[var(--overlay-border)] bg-base-100 p-6 text-base-content shadow-2xl
             transition duration-150 ease-out data-closed:scale-95 data-closed:opacity-0`}
         >
           <button

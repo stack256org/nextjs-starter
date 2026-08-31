@@ -69,6 +69,15 @@
   --border: 1px;
   --depth: 0;
   --noise: 0;
+
+  /* Overlay family — shared by Dropdown, Select, Combobox, Popover, Drawer, Modal */
+  --overlay-radius: var(--radius-field);
+  --overlay-padding: 0.5rem;
+  --overlay-padding-rich: 1rem;
+  --overlay-anchor-gap: 0.5rem;
+  --overlay-border: color-mix(in oklch, var(--color-base-300) 80%, transparent);
+  --overlay-shadow: 0 4px 12px -2px oklch(0% 0 0 / 0.18);
+  --overlay-shadow-elevated: 0 12px 32px -8px oklch(0% 0 0 / 0.28);
 }
 
 /* ---------------------------------------------------------------------------
@@ -115,6 +124,15 @@
   --border: 1px;
   --depth: 0;
   --noise: 0;
+
+  /* Overlay family — shared by Dropdown, Select, Combobox, Popover, Drawer, Modal */
+  --overlay-radius: var(--radius-field);
+  --overlay-padding: 0.5rem;
+  --overlay-padding-rich: 1rem;
+  --overlay-anchor-gap: 0.5rem;
+  --overlay-border: color-mix(in oklch, var(--color-base-300) 80%, transparent);
+  --overlay-shadow: 0 4px 12px -2px oklch(0% 0 0 / 0.18);
+  --overlay-shadow-elevated: 0 12px 32px -8px oklch(0% 0 0 / 0.28);
 }
 
 /* ---------------------------------------------------------------------------

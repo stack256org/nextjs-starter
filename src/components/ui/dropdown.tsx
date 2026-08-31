@@ -81,7 +81,7 @@ export function Dropdown({
         as="ul"
         transition
         anchor={{ to: placement, gap: 8 }}
-        className={`menu z-50 min-w-52 rounded-box border border-base-300 bg-base-100 p-2 text-base-content shadow-lg
+        className={`menu z-50 min-w-52 rounded-[var(--overlay-radius)] border border-[var(--overlay-border)] bg-base-100 p-[var(--overlay-padding)] text-base-content shadow-[var(--overlay-shadow)]
           transition duration-100 ease-out
           data-closed:scale-95 data-closed:opacity-0
           focus:outline-none ${className}`}

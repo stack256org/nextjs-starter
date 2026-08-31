@@ -62,7 +62,7 @@ export function PopoverMenu({
       <PopoverPanel
         transition
         anchor={{ to: placement, gap: 8 }}
-        className={`z-50 w-72 rounded-box border border-base-300 bg-base-100 p-4 text-base-content shadow-lg
+        className={`z-50 w-72 rounded-[var(--overlay-radius)] border border-[var(--overlay-border)] bg-base-100 p-[var(--overlay-padding-rich)] text-base-content shadow-[var(--overlay-shadow)]
           transition duration-100 ease-out
           data-closed:scale-95 data-closed:opacity-0
           focus:outline-none ${panelClassName}`}

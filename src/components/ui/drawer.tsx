@@ -59,7 +59,7 @@ export function Drawer({
       >
         <DialogPanel
           transition
-          className={`flex w-screen ${sizeClasses[size]} flex-col bg-base-100 shadow-xl
+          className={`flex w-screen ${sizeClasses[size]} flex-col rounded-[var(--overlay-radius)] bg-base-100 shadow-xl
             transition duration-200 ease-out
             ${side === "right" ? "data-closed:translate-x-full" : "data-closed:-translate-x-full"}`}
         >

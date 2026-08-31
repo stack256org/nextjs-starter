@@ -59,7 +59,7 @@ export function Tooltip({
     <span
       id={id}
       role="tooltip"
-      className={`pointer-events-none absolute z-50 w-max max-w-56 rounded-field bg-neutral px-2 py-1 text-xs text-neutral-content shadow-lg
+      className={`pointer-events-none absolute z-50 w-max max-w-56 rounded-field border border-[var(--overlay-border)] bg-neutral px-2 py-1 text-xs text-neutral-content shadow-[var(--overlay-shadow)]
         transition-opacity duration-150 ${placementClasses[placement]}
         ${open ? "opacity-100" : "opacity-0"}`}
     >

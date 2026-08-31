@@ -82,8 +82,8 @@ export function Select({
       <ListboxOptions
         as="ul"
         transition
-        anchor={{ to: "bottom start", gap: 4 }}
-        className="menu z-50 max-h-72 w-[var(--button-width)] overflow-y-auto rounded-box border border-base-300 bg-base-100 p-2 text-base-content shadow-lg
+        anchor={{ to: "bottom start", gap: 8 }}
+        className="menu z-50 max-h-72 w-[var(--button-width)] overflow-y-auto rounded-[var(--overlay-radius)] border border-[var(--overlay-border)] bg-base-100 p-[var(--overlay-padding)] text-base-content shadow-[var(--overlay-shadow)]
           transition duration-100 ease-out
           data-closed:scale-95 data-closed:opacity-0
           focus:outline-none"
