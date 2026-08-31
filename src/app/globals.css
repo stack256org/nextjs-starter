@@ -198,6 +198,25 @@ html {
   outline: none;
 }
 
+/* Floating overlay panels take programmatic focus the moment they open —
+ * Headless UI moves focus to the panel to drive roving-tabindex keyboard nav.
+ * Without this, the ring above frames the entire menu instead of the item the
+ * user is on. Focus stays visible on the trigger and on each item, so nothing
+ * is lost for keyboard users. Kept unlayered so it beats the rule above; a
+ * Tailwind `focus-visible:outline-none` utility would not, because @layer
+ * utilities always loses to unlayered CSS regardless of specificity. */
+:is([role="menu"], [role="listbox"]):focus-visible {
+  outline: none;
+}
+
+/* ...and the keyboard cue moves to the item the user is actually on. DaisyUI
+ * paints its menu hover state on the item's child element, but Headless UI
+ * marks the focused item with data-focus on the <li>, so arrow-key navigation
+ * would otherwise be invisible. Mirror the hover treatment there. */
+.menu li[data-focus] > * {
+  background-color: color-mix(in oklch, var(--color-base-content) 10%, transparent);
+}
+
 /* Skip link — visible only once focused. */
 .skip-link {
   position: absolute;
