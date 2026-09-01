@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Brainer — derived index. rejected.json is your input, keep it.
+.brainer/index.db
+.brainer/index.db-*
+.brainer/models/
+.brainer/hooks/
